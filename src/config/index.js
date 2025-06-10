@@ -1,4 +1,3 @@
-export * from "./ai.config.js";
 export * from "./database.config.js";
 export * from "./env.config.js";
 export * from "./logger.config.js";

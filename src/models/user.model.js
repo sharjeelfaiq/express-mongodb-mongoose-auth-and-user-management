@@ -10,26 +10,6 @@ const { Schema, model } = mongoose;
 
 const UserSchema = new Schema(
   {
-    firstName: {
-      type: String,
-      required: [true, "First name is required"],
-      trim: true,
-      minlength: [2, "First name must be at least 2 characters long"],
-    },
-    lastName: {
-      type: String,
-      required: [true, "Last name is required"],
-      trim: true,
-      minlength: [2, "Last name must be at least 2 characters long"],
-    },
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      trim: true,
-      minlength: [2, "Username must be at least 2 characters long"],
-      unique: true,
-      lowercase: true,
-    },
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -38,26 +18,35 @@ const UserSchema = new Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
+    phone: {
+      type: String,
+      trim: true,
+      match: [/^\+?[1-9]\d{1,14}$/, "Please provide a valid phone number"],
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters long"],
+      minlength: [8, "Password must be at least 8 characters long"],
+      match: [
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
+        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+      ],
     },
     role: {
       type: String,
       enum: {
-        values: ["admin", "user"],
-        message: "Role must be either admin or user",
+        values: ["admin", "organization", "educator"],
+        message: "Role must be admin, organization or educator",
       },
-      default: "user",
+      default: "educator",
     },
     isEmailVerified: {
       type: Boolean,
       default: false,
     },
-    profilePicture: {
-      type: String,
-      default: null,
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -68,7 +57,7 @@ const UserSchema = new Schema(
         return ret;
       },
     },
-  },
+  }
 );
 
 UserSchema.pre("save", async function (next) {
@@ -88,7 +77,7 @@ UserSchema.methods.generateAuthToken = function () {
     {
       expiresIn: JWT_EXPIRY,
       algorithm: JWT_ALGORITHM,
-    },
+    }
   );
   return token;
 };
@@ -107,4 +96,4 @@ UserSchema.methods.comparePassword = async function (password) {
   }
 };
 
-export const User = model("User", UserSchema);
+export const UserModel = model("User", UserSchema);

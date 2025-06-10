@@ -1,12 +1,10 @@
-import { User } from "#models/index.js";
+import { UserModel } from "#models/index.js";
 
 export const user = {
   save: {
-    user: async (firstName, lastName, username, email, password, role) => {
-      return await User.create({
-        firstName,
-        lastName,
-        username,
+    user: async (phone, email, password, role) => {
+      return await UserModel.create({
+        phone,
         email,
         password,
         role,
@@ -16,51 +14,47 @@ export const user = {
 
   read: {
     allUsers: async () => {
-      return await User.find().select("-password");
+      return await UserModel.find().select("-password");
     },
 
     userByEmail: async (email) => {
-      return await User.findOne({
+      return await UserModel.findOne({
         email,
       });
     },
 
     userById: async (id) => {
-      return await User.findById(id).select("-password");
-    },
-
-    userByUsername: async (username) => {
-      return await User.findOne({ username }).select("-password");
+      return await UserModel.findById(id).select("-password");
     },
   },
 
   update: {
     userById: async (id, userData) => {
-      return await User.findByIdAndUpdate(id, userData, {
+      return await UserModel.findByIdAndUpdate(id, userData, {
         new: true,
         upsert: true,
       });
     },
 
     userByEmail: async (email, userData) => {
-      return await User.findOneAndUpdate({ email }, userData, {
+      return await UserModel.findOneAndUpdate({ email }, userData, {
         new: true,
         upsert: true,
       });
     },
 
     forgottenPassword: async (email, password) => {
-      return await User.findOneAndUpdate(
+      return await UserModel.findOneAndUpdate(
         { email },
         { password },
-        { new: true, upsert: true },
+        { new: true, upsert: true }
       );
     },
   },
 
   remove: {
     userById: async (id) => {
-      return await User.findByIdAndDelete(id);
+      return await UserModel.findByIdAndDelete(id);
     },
   },
 };

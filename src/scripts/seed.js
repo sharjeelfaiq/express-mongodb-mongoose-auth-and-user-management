@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { faker } from "@faker-js/faker";
 import crypto from "crypto";
 
-import { User } from "#models/index.js";
+import { UserModel } from "#models/index.js";
 import { logger, env } from "#config/index.js";
 
 const { DATABASE_URI } = env;
@@ -40,7 +40,7 @@ async function main() {
       });
     }
 
-    const insertedUsers = await User.insertMany(users);
+    const insertedUsers = await UserModel.insertMany(users);
     logger.info(`Inserted ${insertedUsers.length} users into the database.`);
   } catch (error) {
     logger.error("Error adding bulk users:", error);

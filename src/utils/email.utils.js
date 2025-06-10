@@ -11,17 +11,40 @@ const readEmailTemplate = (folder, filename) => {
   return fs.readFileSync(filePath, "utf-8");
 };
 
-export const sendVerificationEmail = async (email, verificationToken) => {
-  const emailHtml = readEmailTemplate("verification-email", "index.html")
-    .replace(/\$\{backendUrl\}/g, backendUrl)
-    .replace(/\$\{verificationToken\}/g, verificationToken);
+export const sendVerificationEmail = async (
+  email,
+  verificationToken,
+  purpose,
+) => {
+  let emailHtml, mailOptions;
 
-  const mailOptions = {
-    from: USER_EMAIL,
-    to: email,
-    subject: "Welcome to Vocora - Verify your email",
-    html: emailHtml,
-  };
+  switch (purpose) {
+    case "verify-email":
+      emailHtml = readEmailTemplate("verification-email", "index.html")
+        .replace(/\$\{backendUrl\}/g, backendUrl)
+        .replace(/\$\{verificationToken\}/g, verificationToken);
+
+      mailOptions = {
+        from: USER_EMAIL,
+        to: email,
+        subject: "Welcome to Romulus - Verify your email",
+        html: emailHtml,
+      };
+      break;
+    case "reset-password":
+      mailOptions = {
+        from: USER_EMAIL,
+        to: email,
+        subject: "Romulus - Reset your password",
+        html: `<h1>Reset Your Password</h1>
+                <p>Click on the following link to reset your password:</p>
+                <a href="${frontendUrl}/update-password?token=${verificationToken}">${frontendUrl}/update-password?token=${verificationToken}</a>
+                <p>If you didn't request a password reset, please ignore this email.</p>`,
+      };
+      break;
+    default:
+      throw new Error("Invalid email purpose");
+  }
 
   await transporter.sendMail(mailOptions);
 
@@ -39,7 +62,7 @@ export const sendOtpEmail = async (email, otpCode) => {
   const mailOptions = {
     from: USER_EMAIL,
     to: email,
-    subject: "Vocora - Password Reset Code",
+    subject: "Romulus - Password Reset Code",
     html: emailHtml,
   };
 
@@ -53,6 +76,6 @@ export const sendOtpEmail = async (email, otpCode) => {
 export const sendVerificationNotification = () => {
   return readEmailTemplate("verification-notification", "index.html").replace(
     /\$\{frontendUrl\}/g,
-    frontendUrl + "/signin",
+    frontendUrl + "/login",
   );
 };

@@ -1,54 +1,66 @@
-## Scripts 🐜
+# Romulus Backend
 
-The `package.json` file contains several useful scripts:
+Node.js backend application with Express.js for authentication, user management, and email services.
 
-- `npm start`: Starts the production server.
-- `npm run dev`: Starts the development server with Nodemon for automatic restarts.
-- `npm run seed`: Seeds the database with initial data using the script.
-- `npm run lint`: Runs ESLint to check for code quality issues.
-- `npm run lint:fix`: Runs ESLint and fixes issues automatically.
-- `npm run format`: Formats the code using Prettier.
+## Prerequisites
 
-## API Endpoints 📌
+- Node.js (v16+)
+- MongoDB database
+- Environment variables configured
 
-See the [API Endpoints Documentation](./docs/swagger) for a comprehensive list of endpoints, their descriptions, and required parameters. Set-up the project and access the API documentation at `http://localhost:5000/api-docs`.
+## Installation
 
-Here is a quick overview:
+```bash
+npm install
+```
 
-### Auth Endpoints 🔑
+## Scripts
 
-| Method | Endpoint                  | Description                                        |
-| ------ | ------------------------- | -------------------------------------------------- |
-| `POST` | `/api/v1/signup`          | Registers a new user account.                      |
-| `POST` | `/api/v1/signin`          | Authenticates a user and provides a session token. |
-| `POST` | `/api/v1/signout`         | Logs out the authenticated user.                   |
-| `POST` | `/api/v1/forgot-password` | Sends a password reset link.                       |
+- **`npm start`** - Production server
+- **`npm run dev`** - Development server with hot reload
+- **`npm run format`** - Format code with Prettier
+- **`npm run seed`** - Seed database with initial data
+- **`npm run lint`** - Check code quality with ESLint
 
-### User Endpoints 👤
+## Environment Setup
 
-| Method   | Endpoint           | Description                      |
-| -------- | ------------------ | -------------------------------- |
-| `GET`    | `/api/v1/user/`    | Retrieves all users.             |
-| `GET`    | `/api/v1/user/:id` | Retrieves a specific user by ID. |
-| `PATCH`  | `/api/v1/user/:id` | Updates a specific user by ID.   |
-| `DELETE` | `/api/v1/user/:id` | Deletes a specific user by ID.   |
+Configure required environment variables before running the application.
 
-### Email Endpoints 📧
+## API Documentation
 
-| Method | Endpoint                                  | Description                      |
-| ------ | ----------------------------------------- | -------------------------------- |
-| `GET`  | `/api/v1/verify-email/:verificationToken` | Verifies a user's email address. |
-| `POST` | `/api/v1/send-verification-email`         | Sends a verification email.      |
+Interactive Swagger documentation available at:
+```
+http://localhost:5000/api-docs
+```
 
-## Contributing 🤝
+## Project Structure
 
-Contributions are welcome! Please follow these steps:
+ES6 modules with import mapping:
 
-1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix.
-3.  Make your changes and commit them with descriptive messages.
-4.  Submit a pull request.
+```
+src/
+├── config/     # Application configuration
+├── constants/  # Application constants
+├── data-access/# Database access layer
+├── dtos/       # Data transfer objects
+├── middleware/ # Express middleware
+├── models/     # Database models
+├── modules/    # Feature modules
+├── routes/     # API route definitions
+├── server/     # Server configuration
+├── utils/      # Utility functions
+└── scripts/    # Maintenance scripts
+```
 
-## Author ✍️
+## Core Dependencies
+
+- Express.js (v4.21.2)
+- Mongoose (v8.9.6)
+- JWT (v9.0.2)
+- Bcrypt.js (v2.4.3)
+- Joi (v17.13.3)
+- Nodemailer (v6.10.0)
+
+## Author
 
 **Sharjeel Faiq**

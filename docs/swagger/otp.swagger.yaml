@@ -1,0 +1,288 @@
+openapi: 3.0.0
+info:
+  title: OTP API
+  version: v1
+  description: API for One-Time Password (OTP) generation, sending, and verification.
+
+tags:
+  - name: OTP
+    description: API endpoints for OTP management and verification.
+
+components:
+  schemas:
+    # Reusable Schema Definitions
+    ID:
+      type: string
+      description: Unique identifier.
+      example: "60d0fe4f5311236168a109ca"
+      pattern: "^[0-9a-fA-F]{24}$"
+
+    Email:
+      type: string
+      format: email
+      description: Email address.
+      example: "johndoe@example.com"
+      maxLength: 255
+      minLength: 5
+
+    OTP:
+      type: string
+      description: One-Time Password (6-digit numeric code).
+      example: "123456"
+      pattern: "^[0-9]{6}$"
+      minLength: 6
+      maxLength: 6
+
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 timestamp.
+      example: "2024-01-15T10:30:00.000Z"
+
+    OtpSendRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+
+    OtpVerifyRequest:
+      type: object
+      required:
+        - email
+        - otp
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        otp:
+          $ref: "#/components/schemas/OTP"
+
+    OtpRecord:
+      type: object
+      properties:
+        _id:
+          $ref: "#/components/schemas/ID"
+        otpHash:
+          type: string
+          description: Hashed OTP for security.
+          example: "$2a$10$N9qo8uLOickgx2ZMRZoMye"
+        userId:
+          $ref: "#/components/schemas/ID"
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        expiresAt:
+          $ref: "#/components/schemas/Timestamp"
+      required:
+        - otpHash
+        - userId
+        - expiresAt
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          description: Success message.
+          example: "Operation completed successfully."
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Indicates the request was unsuccessful.
+        message:
+          type: string
+          description: Error message.
+          example: "An error occurred."
+
+    OtpSentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          description: Success message for OTP sent.
+          example: "OTP sent successfully"
+
+    OtpVerifiedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          description: Success message for OTP verification.
+          example: "OTP Verified"
+
+  responses:
+    # Reusable Response Definitions
+    Success:
+      description: Successful operation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessResponse"
+
+    BadRequest:
+      description: Bad request - validation error, missing parameters, or invalid data.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            validation_error:
+              value:
+                success: false
+                message: "Email is required."
+            invalid_otp:
+              value:
+                success: false
+                message: "Invalid OTP"
+            otp_required:
+              value:
+                success: false
+                message: "OTP is required."
+            invalid_email_format:
+              value:
+                success: false
+                message: "Please provide a valid email address."
+
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            user_not_found:
+              value:
+                success: false
+                message: "User not found."
+
+    InternalServerError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            otp_save_failed:
+              value:
+                success: false
+                message: "Failed to save OTP."
+            email_send_failed:
+              value:
+                success: false
+                message: "Failed to send OTP email."
+            server_error:
+              value:
+                success: false
+                message: "Internal server error occurred."
+
+    OtpSent:
+      description: OTP sent successfully to the provided email address.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/OtpSentResponse"
+          example:
+            success: true
+            message: "OTP sent successfully"
+
+    OtpVerified:
+      description: OTP verified successfully.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/OtpVerifiedResponse"
+          example:
+            success: true
+            message: "OTP Verified"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /api/otp/send:
+    post:
+      summary: Send OTP to user's email
+      description: |
+        Generates and sends a One-Time Password (OTP) to the specified email address.
+
+        **Process:**
+        - Validates that a user exists with the provided email
+        - Generates a 6-digit numeric OTP
+        - Stores the hashed OTP in the database with expiration time
+        - Sends the OTP to the user's email address
+
+        **Security Features:**
+        - OTP is hashed before storage for security
+        - Automatic expiration to prevent replay attacks
+        - User existence validation before OTP generation
+      tags: [OTP]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpSendRequest"
+            example:
+              email: "john.doe@example.com"
+      responses:
+        200:
+          $ref: "#/components/responses/OtpSent"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/otp/verify:
+    post:
+      summary: Verify OTP for user
+      description: |
+        Verifies the provided OTP against the stored OTP for the specified user.
+
+        **Process:**
+        - Validates that a user exists with the provided email
+        - Retrieves all active OTPs for the user
+        - Compares the provided OTP against stored hashed OTPs using bcrypt
+        - Returns success if any OTP matches
+
+        **Security Features:**
+        - Secure comparison using bcrypt for hashed OTPs
+        - Supports multiple active OTPs (handles race conditions)
+        - Automatic cleanup of expired OTPs via database TTL
+        - Constant-time comparison to prevent timing attacks
+      tags: [OTP]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpVerifyRequest"
+            example:
+              email: "john.doe@example.com"
+              otp: "123456"
+      responses:
+        200:
+          $ref: "#/components/responses/OtpVerified"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"

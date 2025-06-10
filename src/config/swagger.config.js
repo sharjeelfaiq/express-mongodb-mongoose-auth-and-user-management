@@ -1,41 +1,38 @@
 import swaggerJSDoc from "swagger-jsdoc";
-import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-import { env } from "#config/index.js";
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const isDevelopment = process.env.NODE_ENV !== "production";
 
-const { NODE_ENV } = env;
-
-const backendUrl =
-  NODE_ENV === "production"
-    ? "https://api.thesmarttowers.com"
-    : "http://localhost:5000";
-
-const options = {
+const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "The Smart Towers API v1.0.0",
+      title: "Romulus",
       version: "1.0.0",
-      description: "API documentation with Swagger",
+      description: "RESTful API for Romulus Backend",
     },
     servers: [
       {
-        url: backendUrl,
-        description:
-          NODE_ENV === "production"
-            ? "Production server"
-            : "Development server",
+        url: isDevelopment
+          ? "http://localhost:5000"
+          : "https://romulus-backend.onrender.com",
+        description: isDevelopment ? "Development" : "Production",
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
-  apis: [
-    path.join(__dirname, "../../docs/swagger/auth.swagger.yaml"),
-    path.join(__dirname, "../../docs/swagger/user.swagger.yaml"),
-  ],
+  apis: [join(__dirname, "../../docs/swagger/*.yaml")],
 };
 
-export const swaggerSpec = swaggerJSDoc(options);
+export const swaggerSpec = swaggerJSDoc(swaggerOptions);

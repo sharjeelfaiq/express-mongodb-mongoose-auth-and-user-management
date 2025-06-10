@@ -1,6 +1,6 @@
 import express from "express";
 
-import userController from "./user.controller.js";
+import userController from "./user.controllers.js";
 import { uploadFiles, verifyAuthRole } from "#middleware/index.js";
 
 export const userRoutes = express.Router();

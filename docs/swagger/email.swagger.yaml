@@ -1,0 +1,231 @@
+openapi: 3.0.0
+info:
+  title: Email Verification API
+  version: v1
+  description: API for email verification and related operations.
+
+tags:
+  - name: Email
+    description: API endpoints for email verification management.
+
+components:
+  schemas:
+    # Reusable Schema Definitions
+    ID:
+      type: string
+      description: Unique identifier.
+      example: "60d0fe4f5311236168a109ca"
+      pattern: "^[0-9a-fA-F]{24}$"
+
+    Email:
+      type: string
+      format: email
+      description: Email address.
+      example: "johndoe@example.com"
+      maxLength: 255
+      minLength: 5
+
+    Token:
+      type: string
+      description: JWT verification token.
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    VerificationToken:
+      type: string
+      description: Email verification token sent to user's email.
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MGQwZmU0ZjUzMTEyMzYxNjhhMTA5Y2EiLCJpYXQiOjE2MjQyOTQ0MDAsImV4cCI6MTYyNDM4MDgwMH0.abc123..."
+
+    SendVerificationRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          description: Success message.
+          example: "Operation completed successfully."
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Indicates the request was unsuccessful.
+        message:
+          type: string
+          description: Error message.
+          example: "An error occurred."
+
+    VerificationSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          description: Email verification success message.
+          example: "Email verified successfully."
+
+  responses:
+    # Reusable Response Definitions
+    Success:
+      description: Successful operation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessResponse"
+
+    BadRequest:
+      description: Bad request - validation error, invalid token, or missing parameters.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalid_token:
+              value:
+                success: false
+                message: "Invalid token"
+            missing_user_id:
+              value:
+                success: false
+                message: "Token does not contain the user id"
+            validation_error:
+              value:
+                success: false
+                message: "Email is required."
+
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            user_not_found:
+              value:
+                success: false
+                message: "User not found"
+
+    InternalServerError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            verification_failed:
+              value:
+                success: false
+                message: "An error occurred while verifying the email"
+            token_generation_failed:
+              value:
+                success: false
+                message: "An error occurred while generating the token."
+            email_send_failed:
+              value:
+                success: false
+                message: "Failed to send the welcome email."
+
+    EmailVerified:
+      description: Email verified successfully.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/VerificationSuccessResponse"
+          example:
+            success: true
+            message: "Email verified successfully"
+
+    VerificationEmailSent:
+      description: Verification email sent successfully.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessResponse"
+          example:
+            success: true
+            message: "Verification email sent successfully"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /api/email/check-verification-token/{verificationToken}:
+    get:
+      summary: Verify email using verification token
+      description: |
+        Verifies a user's email address using the verification token sent to their email.
+
+        **Process:**
+        - Decodes and validates the verification token
+        - Extracts the user ID from the token
+        - Updates the user's email verification status to true
+        - Sends a verification notification
+        - Returns a success response
+
+        **Token Requirements:**
+        - Token must be valid and not expired
+        - Token must contain a valid user ID
+      tags: [Email]
+      parameters:
+        - name: verificationToken
+          in: path
+          required: true
+          description: The verification token sent to the user's email address
+          schema:
+            $ref: "#/components/schemas/VerificationToken"
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MGQwZmU0ZjUzMTEyMzYxNjhhMTA5Y2EiLCJpYXQiOjE2MjQyOTQ0MDAsImV4cCI6MTYyNDM4MDgwMH0.abc123..."
+      responses:
+        200:
+          $ref: "#/components/responses/EmailVerified"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/email/send-verification-token:
+    post:
+      summary: Send verification email to user
+      description: |
+        Sends a verification email with a secure token to the specified email address.
+
+        **Process:**
+        - Validates that a user exists with the provided email
+        - Generates a secure verification token containing the user ID
+        - Sends a verification email with the token
+        - If token generation or email sending fails, the user account is removed for security
+
+        **Prerequisites:**
+        - User must exist in the system with the provided email
+        - Email service must be configured and operational
+      tags: [Email]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendVerificationRequest"
+            example:
+              email: "johndoe@example.com"
+      responses:
+        200:
+          $ref: "#/components/responses/VerificationEmailSent"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
