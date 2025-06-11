@@ -10,20 +10,14 @@ import { dataAccess } from "#dataAccess/index.js";
 
 const { save, read, remove, update } = dataAccess;
 
-const authService = {
-  signUp: async ({ phone, email, password, role }) => {
+export const authServices = {
+  signUp: async ({ email, password, role }) => {
     const existingUser = await read.userByEmail(email);
     if (existingUser) {
       throw createError(400, "A user with this email already exists.");
     }
 
-    if (role === "educator" && !phone) {
-      throw createError(400, "Phone number is required for educators.");
-    } else if (role === "admin" || (role === "organization" && phone)) {
-      phone = undefined; // Phone number is not required for admin or organization roles
-    }
-
-    const newUser = await save.user(phone, email, password, role);
+    const newUser = await save.user(email, password, role);
     if (!newUser) {
       throw createError(500, "Failed to create a new user.");
     }
@@ -61,16 +55,9 @@ const authService = {
       throw createError(403, "Email not verified. Please check your inbox.");
     }
 
-    if (user.role === "educator" && !user.isPhoneVerified) {
-      throw createError(
-        403,
-        "Phone number not verified. Educators must verify their phone numbers."
-      );
-    }
-
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      throw createError(401, "Invalid password.");
+      throw createError(401, "Invalid email or password.");
     }
 
     const token = generateToken(user._id, user.role);
@@ -163,5 +150,3 @@ const authService = {
     return { success: true, message: "Password updated successfully." };
   },
 };
-
-export default authService;

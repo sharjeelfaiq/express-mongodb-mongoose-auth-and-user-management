@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import createError from "http-errors";
 
 import { env } from "#config/index.js";
 
@@ -16,17 +15,16 @@ const UserSchema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
-    },
-    phone: {
-      type: String,
-      trim: true,
-      match: [/^\+?[1-9]\d{1,14}$/, "Please provide a valid phone number"],
+      match: [
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        "Please provide a valid email address",
+      ],
     },
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
+      select: false,
       match: [
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
         "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
@@ -35,16 +33,12 @@ const UserSchema = new Schema(
     role: {
       type: String,
       enum: {
-        values: ["admin", "organization", "educator"],
-        message: "Role must be admin, organization or educator",
+        values: ["admin", "user"],
+        message: "Role must be admin or user",
       },
-      default: "educator",
+      default: "user",
     },
     isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    isPhoneVerified: {
       type: Boolean,
       default: false,
     },
@@ -60,17 +54,21 @@ const UserSchema = new Schema(
   }
 );
 
+// Indexes for performance
+UserSchema.index({ role: 1 });
+
 UserSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-  }
+  if (!this.isModified("password")) return next();
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
 UserSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
+      id: this._id,
       role: this.role,
     },
     JWT_SECRET_KEY,
@@ -83,17 +81,7 @@ UserSchema.methods.generateAuthToken = function () {
 };
 
 UserSchema.methods.comparePassword = async function (password) {
-  try {
-    const isMatch = await bcrypt.compare(password, this.password);
-
-    if (!isMatch) {
-      throw createError(401, "Invalid credentials");
-    }
-
-    return isMatch;
-  } catch (error) {
-    throw createError(500, error.message);
-  }
+  return await bcrypt.compare(password, this.password);
 };
 
-export const UserModel = model("User", UserSchema);
+export const UserModel = model("users", UserSchema);

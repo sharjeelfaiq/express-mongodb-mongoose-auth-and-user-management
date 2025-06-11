@@ -1,18 +1,16 @@
 import { asyncHandler } from "#utils/index.js";
-import otpService from "./otp.services.js";
+import { otpServices } from "./otp.services.js";
 
-const otpController = {
+export const otpControllers = {
   send: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await otpService.send(payload);
+    const result = await otpServices.send(payload);
     res.status(200).json(result);
   }),
 
   verify: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await otpService.verify(payload);
+    const result = await otpServices.verify(payload);
     res.status(200).json(result);
   }),
 };
-
-export default otpController;

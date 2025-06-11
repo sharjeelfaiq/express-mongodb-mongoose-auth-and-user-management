@@ -2,9 +2,8 @@ import { UserModel } from "#models/index.js";
 
 export const user = {
   save: {
-    user: async (phone, email, password, role) => {
+    user: async (email, password, role) => {
       return await UserModel.create({
-        phone,
         email,
         password,
         role,

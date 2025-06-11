@@ -10,7 +10,7 @@ import { dataAccess } from "#dataAccess/index.js";
 
 const { read, update, remove } = dataAccess;
 
-const emailService = {
+export const emailServices = {
   check: async (verificationToken) => {
     const decoded = decodeToken(verificationToken);
     if (!decoded) {
@@ -56,5 +56,3 @@ const emailService = {
     };
   },
 };
-
-export default emailService;

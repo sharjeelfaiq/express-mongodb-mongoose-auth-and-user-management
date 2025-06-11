@@ -7,21 +7,21 @@ import {
   updatePasswordDto,
 } from "#dtos/index.js";
 import { validateDto } from "#middleware/index.js";
-import authController from "./auth.controllers.js";
+import { authControllers } from "./auth.controllers.js";
 
 export const authRoutes = express.Router();
 
 authRoutes
-  .post("/signup", validateDto(signUpDto), authController.signUp)
-  .post("/signin", validateDto(signInDto), authController.signIn)
-  .post("/signout", authController.signOut)
+  .post("/signup", validateDto(signUpDto), authControllers.signUp)
+  .post("/signin", validateDto(signInDto), authControllers.signIn)
+  .post("/signout", authControllers.signOut)
   .post(
     "/forgot-password",
     validateDto(forgotPasswordDto),
-    authController.forgetPassword
+    authControllers.forgetPassword
   )
   .patch(
     "/update-password",
     validateDto(updatePasswordDto),
-    authController.updatePassword
+    authControllers.updatePassword
   );

@@ -6,7 +6,7 @@ import { dataAccess } from "#dataAccess/index.js";
 
 const { save, read } = dataAccess;
 
-const otpService = {
+export const otpServices = {
   send: async ({ email }) => {
     const existingUser = await read.userByEmail(email);
     if (!existingUser) {
@@ -57,5 +57,3 @@ const otpService = {
     return { success: true, message: "OTP Verified" };
   },
 };
-
-export default otpService;

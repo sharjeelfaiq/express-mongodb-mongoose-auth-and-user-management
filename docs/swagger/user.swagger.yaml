@@ -1,182 +1,229 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: User Management API
   version: v1
-  description: API for managing user accounts and profiles.
+  description: |
+    Comprehensive API for managing user accounts and profiles with role-based access control.
+
+    **Features:**
+    - User profile retrieval and management
+    - Profile picture upload and management
+    - Role-based access control (admin privileges for user deletion)
+    - Automatic password exclusion from all responses
+
+    **Authentication:**
+    - All endpoints require valid JWT authentication token
+    - DELETE operations require admin role privileges
+    - Tokens obtained from Authentication API sign-in endpoint
+  contact:
+    name: API Support
+    email: support@yourapi.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.yourapp.com
+    description: Production server
+  - url: https://staging-api.yourapp.com
+    description: Staging server
+  - url: http://localhost:3000
+    description: Development server
 
 tags:
-  - name: Users
-    description: API endpoints for user account management and profile operations.
+  - name: User Management
+    description: User account management and profile operations
 
 components:
   schemas:
-    # Reusable Schema Definitions
+    # Primitive Types
     ID:
       type: string
-      description: Unique identifier.
+      description: MongoDB ObjectId identifier
       example: "60d0fe4f5311236168a109ca"
       pattern: "^[0-9a-fA-F]{24}$"
 
     Email:
       type: string
       format: email
-      description: Email address.
+      description: Valid email address (lowercase, trimmed)
       example: "johndoe@example.com"
       maxLength: 255
       minLength: 5
-
-    FirstName:
-      type: string
-      description: First name of the user.
-      example: "John"
-      minLength: 2
-      maxLength: 50
-
-    LastName:
-      type: string
-      description: Last name of the user.
-      example: "Doe"
-      minLength: 2
-      maxLength: 50
-
-    PhoneNumber:
-      type: string
-      description: Phone number in international format.
-      example: "+1234567890"
-      pattern: "^\\+?[1-9]\\d{1,14}$"
-      minLength: 10
-      maxLength: 15
+      pattern: "^\\S+@\\S+\\.\\S+$"
 
     Role:
       type: string
-      enum: [admin, organization, educator]
-      description: Role of the user (admin, organization, or educator).
-      default: educator
-      example: educator
+      enum: [admin, user]
+      description: |
+        User role determining system access:
+        - `admin`: Full system access including user management
+        - `user`: User-level access
+      default: user
+      example: user
 
     ProfilePictureUrl:
       type: string
-      format: uri
-      nullable: true
-      description: URL to the user's profile picture.
+      description: Relative URL path to uploaded profile picture
       example: "/uploads/profile-picture-123.jpg"
+      pattern: "^/uploads/[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|gif)$"
 
     Timestamp:
       type: string
       format: date-time
-      description: ISO 8601 timestamp.
+      description: ISO 8601 timestamp with timezone
       example: "2024-01-15T10:30:00.000Z"
 
+    # Core User Profile (matching actual UserModel)
     UserProfile:
       type: object
+      required:
+        - _id
+        - email
+        - role
+        - isEmailVerified
+        - createdAt
+        - updatedAt
       properties:
         _id:
           $ref: "#/components/schemas/ID"
-        firstName:
-          $ref: "#/components/schemas/FirstName"
-        lastName:
-          $ref: "#/components/schemas/LastName"
         email:
           $ref: "#/components/schemas/Email"
-        phone:
-          allOf:
-            - $ref: "#/components/schemas/PhoneNumber"
-          nullable: true
-          description: Phone number (optional).
         role:
           $ref: "#/components/schemas/Role"
         isEmailVerified:
           type: boolean
-          description: Indicates if the user's email is verified.
-          example: false
-        isPhoneVerified:
-          type: boolean
-          description: Indicates if the user's phone number is verified.
-          example: false
+          description: Email verification status
+          example: true
         profilePicture:
-          $ref: "#/components/schemas/ProfilePictureUrl"
+          allOf:
+            - $ref: "#/components/schemas/ProfilePictureUrl"
+          nullable: true
+          description: Profile picture URL (set via file upload)
         createdAt:
           $ref: "#/components/schemas/Timestamp"
         updatedAt:
           $ref: "#/components/schemas/Timestamp"
-      required:
-        - firstName
-        - lastName
-        - email
-        - role
+      example:
+        _id: "60d0fe4f5311236168a109ca"
+        email: "johndoe@example.com"
+        role: "user"
+        isEmailVerified: true
+        profilePicture: "/uploads/profile-123.jpg"
+        createdAt: "2024-01-15T10:30:00.000Z"
+        updatedAt: "2024-01-15T12:45:00.000Z"
 
-    ServiceResponse:
+    # Request/Response DTOs
+    UserUpdateRequest:
       type: object
+      properties:
+        profilePicture:
+          type: string
+          format: binary
+          description: Profile picture file to upload (jpg, jpeg, png, gif)
+      description: |
+        User profile update data. Profile picture upload will replace existing picture and delete old file.
+
+    BaseResponse:
+      type: object
+      required:
+        - success
+        - message
       properties:
         success:
           type: boolean
-          description: Indicates if the operation was successful.
-          example: true
+          description: Operation success indicator
         message:
           type: string
-          description: Response message.
-          example: "Operation completed successfully."
-        data:
-          description: Response data (varies by endpoint).
+          description: Human-readable response message
 
-    UserListResponse:
+    ErrorResponse:
       allOf:
-        - $ref: "#/components/schemas/ServiceResponse"
+        - $ref: "#/components/schemas/BaseResponse"
         - type: object
           properties:
-            data:
-              type: array
-              items:
-                $ref: "#/components/schemas/UserProfile"
-              description: List of user profiles.
+            success:
+              example: false
+            message:
+              example: "An error occurred processing your request"
 
     UserResponse:
       allOf:
-        - $ref: "#/components/schemas/ServiceResponse"
+        - $ref: "#/components/schemas/BaseResponse"
         - type: object
+          required:
+            - data
           properties:
             data:
               $ref: "#/components/schemas/UserProfile"
-
-    UserDeleteResponse:
-      allOf:
-        - $ref: "#/components/schemas/ServiceResponse"
-        - type: object
-          example:
-            success: true
-            message: "User deleted successfully"
-
-    ErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: Always false for error responses.
-          example: false
-        message:
-          type: string
-          description: Error message.
-          example: "An error occurred."
-
-  responses:
-    UserFound:
-      description: User details retrieved successfully.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/UserResponse"
           example:
             success: true
             message: "User retrieved successfully"
             data:
               _id: "60d0fe4f5311236168a109ca"
-              firstName: "John"
-              lastName: "Doe"
               email: "johndoe@example.com"
-              role: "educator"
+              role: "user"
+              isEmailVerified: true
 
-    UserUpdated:
-      description: User profile updated successfully.
+    UserListResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/UserProfile"
+              description: Array of user profiles
+          examples:
+            with_users:
+              summary: Users found
+              value:
+                success: true
+                message: "Users retrieved successfully"
+                data:
+                  [
+                    {
+                      _id: "60d0fe4f5311236168a109ca",
+                      email: "johndoe@example.com",
+                      role: "user",
+                    },
+                  ]
+            empty_list:
+              summary: No users found
+              value:
+                success: true
+                message: "No users found"
+                data: []
+
+    UserDeleteResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          example:
+            success: true
+            message: "User deleted successfully"
+
+  responses:
+    # Success Responses
+    UserListSuccess:
+      description: User list retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserListResponse"
+
+    UserSuccess:
+      description: User operation completed successfully
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserResponse"
+
+    UserUpdateSuccess:
+      description: User profile updated successfully
       content:
         application/json:
           schema:
@@ -186,118 +233,104 @@ components:
             message: "User updated successfully"
             data:
               _id: "60d0fe4f5311236168a109ca"
-              firstName: "Jane"
-              lastName: "Smith"
-              email: "janesmith@example.com"
-              role: "educator"
+              email: "johndoe@example.com"
+              role: "user"
+              profilePicture: "/uploads/new-profile-456.jpg"
 
-    UserDeleted:
-      description: User deleted successfully.
+    UserDeleteSuccess:
+      description: User deleted successfully
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/UserDeleteResponse"
 
-    UserListFound:
-      description: List of users retrieved successfully.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/UserListResponse"
-          examples:
-            users_found:
-              summary: Users found
-              value:
-                success: true
-                message: "Users retrieved successfully"
-                data: [
-                  {
-                    _id: "60d0fe4f5311236168a109ca",
-                    firstName: "John",
-                    lastName: "Doe",
-                    email: "johndoe@example.com",
-                    role: "educator"
-                  }
-                ]
-            no_users:
-              summary: No users found
-              value:
-                success: true
-                message: "No users found"
-                data: []
-
-    NotFound:
-      description: Resource not found.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          examples:
-            user_not_found:
-              value:
-                success: false
-                message: "User not found"
-
+    # Error Responses
     BadRequest:
-      description: Bad request - validation error or invalid parameters.
+      description: Invalid request data or parameters
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
           examples:
-            validation_error:
-              value:
-                success: false
-                message: "First name must be at least 2 characters long"
             invalid_user_id:
+              summary: Invalid MongoDB ObjectId format
               value:
                 success: false
                 message: "Invalid user ID format"
+            file_upload_error:
+              summary: Profile picture upload failed
+              value:
+                success: false
+                message: "Invalid file format. Only jpg, jpeg, png, gif allowed"
 
     Unauthorized:
-      description: Unauthorized - missing or invalid authentication token.
+      description: Authentication token missing or invalid
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
           examples:
             missing_token:
+              summary: No authentication token provided
               value:
                 success: false
                 message: "Access token is required"
             invalid_token:
+              summary: Token expired or malformed
               value:
                 success: false
                 message: "Invalid or expired token"
 
     Forbidden:
-      description: Forbidden - insufficient permissions for the requested operation.
+      description: Insufficient permissions for requested operation
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
           examples:
             admin_required:
+              summary: Admin role required for user deletion
               value:
                 success: false
                 message: "Admin access required"
             insufficient_permissions:
+              summary: General permission denied
               value:
                 success: false
                 message: "You don't have permission to perform this action"
 
-    InternalServerError:
-      description: Internal server error.
+    NotFound:
+      description: Requested user not found
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
           examples:
-            user_update_failed:
+            user_not_found:
+              summary: User ID does not exist
+              value:
+                success: false
+                message: "User not found"
+
+    InternalServerError:
+      description: Unexpected server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            update_failed:
+              summary: Database update operation failed
               value:
                 success: false
                 message: "User update failed"
+            file_system_error:
+              summary: File operation failed
+              value:
+                success: false
+                message: "Failed to process profile picture"
             server_error:
+              summary: General server error
               value:
                 success: false
                 message: "Internal server error occurred"
@@ -307,36 +340,43 @@ components:
       in: path
       name: id
       required: true
-      description: The ID of the user to retrieve, update, or delete.
+      description: MongoDB ObjectId of the user to operate on
       schema:
         $ref: "#/components/schemas/ID"
+      example: "60d0fe4f5311236168a109ca"
 
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: |
+        JWT token obtained from the Authentication API sign-in endpoint.
+        Include in the Authorization header as: `Bearer <token>`
+
+security:
+  - bearerAuth: []
 
 paths:
   /api/users:
     get:
-      summary: Get all users
+      summary: Retrieve all users
       description: |
-        Retrieves a list of all registered users in the system.
+        Fetches a list of all registered users in the system.
 
-        **Authentication Required:** Yes (Bearer token)
+        **Authentication:** Bearer token required
         **Authorization:** Available to all authenticated users
+        **Response:** Password fields automatically excluded from all user objects
 
-        **Response:**
-        - Returns a service response with success flag, message, and data array
-        - If no users exist, returns success: true with empty data array and message "No users found"
-        - Password fields are automatically excluded from the response
-      tags: [Users]
-      security:
-        - bearerAuth: []
+        **Behavior:**
+        - Returns empty array with success message when no users exist
+        - All user objects exclude sensitive password information
+        - Includes user verification status and timestamps
+      operationId: getAllUsers
+      tags: [User Management]
       responses:
         200:
-          $ref: "#/components/responses/UserListFound"
+          $ref: "#/components/responses/UserListSuccess"
         401:
           $ref: "#/components/responses/Unauthorized"
         500:
@@ -344,25 +384,25 @@ paths:
 
   /api/users/{id}:
     get:
-      summary: Get user by ID
+      summary: Retrieve user by ID
       description: |
-        Retrieves a specific user's profile information by their unique ID.
+        Fetches detailed profile information for a specific user.
 
-        **Authentication Required:** Yes (Bearer token)
+        **Authentication:** Bearer token required
         **Authorization:** Available to all authenticated users
+        **Response:** Password field automatically excluded
 
-        **Response:**
-        - Returns the user's complete profile information wrapped in service response format
-        - Password field is automatically excluded from the response
-        - Throws 404 error if user not found
-      tags: [Users]
-      security:
-        - bearerAuth: []
+        **Features:**
+        - Returns complete user profile including verification status
+        - Validates MongoDB ObjectId format
+        - Throws 404 if user does not exist
+      operationId: getUserById
+      tags: [User Management]
       parameters:
         - $ref: "#/components/parameters/UserIDPath"
       responses:
         200:
-          $ref: "#/components/responses/UserFound"
+          $ref: "#/components/responses/UserSuccess"
         400:
           $ref: "#/components/responses/BadRequest"
         401:
@@ -375,26 +415,27 @@ paths:
     patch:
       summary: Update user profile
       description: |
-        Updates a user's profile information including name, phone, and profile picture.
+        Updates user profile information with support for file uploads.
 
-        **Authentication Required:** Yes (Bearer token)
+        **Authentication:** Bearer token required
         **Authorization:** Available to all authenticated users
+        **Content-Type:** multipart/form-data (for file upload support)
 
         **Features:**
-        - Supports partial updates (only provided fields are updated)
-        - Profile picture upload via multipart/form-data
-        - Automatic cleanup of old profile pictures when new ones are uploaded
-        - Validates phone number format if provided
-        - Throws 404 error if user not found
-        - Throws 500 error if update operation fails
+        - Profile picture upload with automatic old file cleanup
+        - Returns updated user object
 
         **File Upload:**
-        - Profile pictures are stored in `/uploads/` directory
-        - Old profile pictures are automatically deleted from `/public/` directory when replaced
-        - File is accessed via `req.files.profilePicture[0]`
-      tags: [Users]
-      security:
-        - bearerAuth: []
+        - Supported formats: jpg, jpeg, png, gif
+        - Files stored in `/uploads/` directory
+        - Old profile pictures automatically deleted
+        - Uses `req.files.profilePicture[0]` in implementation
+
+        **Error Handling:**
+        - 404 if user not found
+        - 500 if database update fails
+      operationId: updateUserById
+      tags: [User Management]
       parameters:
         - $ref: "#/components/parameters/UserIDPath"
       requestBody:
@@ -402,40 +443,15 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                firstName:
-                  $ref: "#/components/schemas/FirstName"
-                lastName:
-                  $ref: "#/components/schemas/LastName"
-                phone:
-                  allOf:
-                    - $ref: "#/components/schemas/PhoneNumber"
-                  nullable: true
-                  description: Updated phone number in international format.
-                profilePicture:
-                  type: string
-                  format: binary
-                  description: Profile picture file to upload.
+              $ref: "#/components/schemas/UserUpdateRequest"
             examples:
-              update_name:
-                summary: Update user name
+              upload_picture:
+                summary: Upload new profile picture
                 value:
-                  firstName: "Jane"
-                  lastName: "Smith"
-              update_phone:
-                summary: Update phone number
-                value:
-                  phone: "+1987654321"
-              update_with_picture:
-                summary: Update with profile picture
-                value:
-                  firstName: "John"
-                  lastName: "Doe"
                   profilePicture: "[binary file data]"
       responses:
         200:
-          $ref: "#/components/responses/UserUpdated"
+          $ref: "#/components/responses/UserUpdateSuccess"
         400:
           $ref: "#/components/responses/BadRequest"
         401:
@@ -446,27 +462,28 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
     delete:
-      summary: Delete user by ID
+      summary: Delete user account
       description: |
-        Permanently deletes a user account from the system.
+        Permanently removes a user account from the system.
 
-        **Authentication Required:** Yes (Bearer token)
-        **Authorization:** Admin role required
+        **Authentication:** Bearer token required
+        **Authorization:** Admin role required (enforced by verifyAuthRole middleware)
+        **Security:** This operation is irreversible
 
-        **Security:**
-        - Only users with 'admin' role can delete user accounts
-        - Returns 204 No Content status with JSON response body
-        - Throws 404 error if user not found
+        **Features:**
+        - Only users with 'admin' role can delete accounts
+        - Returns 204 status with JSON response body
+        - Validates user existence before deletion
 
-        **Warning:** This operation is irreversible.
-      tags: [Users]
-      security:
-        - bearerAuth: []
+        **Note:** Implementation returns 204 No Content with JSON body,
+        which is unconventional but matches actual controller behavior.
+      operationId: deleteUserById
+      tags: [User Management]
       parameters:
         - $ref: "#/components/parameters/UserIDPath"
       responses:
         204:
-          $ref: "#/components/responses/UserDeleted"
+          $ref: "#/components/responses/UserDeleteSuccess"
         401:
           $ref: "#/components/responses/Unauthorized"
         403:

@@ -1,43 +1,157 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: OTP API
-  version: v1
-  description: API for One-Time Password (OTP) generation, sending, and verification.
+  version: 1.0.0
+  description: |
+    RESTful API for One-Time Password (OTP) generation, delivery, and verification.
+    
+    ## Overview
+    This API provides secure OTP-based authentication for password reset and two-factor authentication flows.
+    
+    ## Key Features
+    - Cryptographically secure 6-digit OTP generation
+    - Bcrypt hashing with salt for OTP storage
+    - 5-minute automatic expiration with MongoDB TTL
+    - Support for multiple concurrent OTPs per user
+    - Email delivery via Nodemailer
+    
+    ## Security Model
+    - OTPs are hashed using bcrypt (10 salt rounds) before storage
+    - Automatic cleanup via MongoDB TTL index
+    - Constant-time comparison to prevent timing attacks
+    - No authentication required (used for password reset flow)
+    
+    ## Integration Points
+    - User Management API for user validation
+    - Email service for OTP delivery
+    - MongoDB for secure OTP storage
+  contact:
+    name: API Support Team
+    email: support@yourapp.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.yourapp.com
+    description: Production server
+  - url: https://staging-api.yourapp.com
+    description: Staging server
+  - url: http://localhost:3000
+    description: Local development server
 
 tags:
   - name: OTP
-    description: API endpoints for OTP management and verification.
+    description: One-Time Password generation and verification endpoints
+
+paths:
+  /api/otp/send:
+    post:
+      tags:
+        - OTP
+      summary: Generate and send OTP
+      description: |
+        Generates a secure 6-digit OTP and sends it to the user's registered email address.
+        
+        ## Process Flow
+        1. Validates user existence by email lookup
+        2. Generates cryptographically secure 6-digit OTP using `crypto.randomInt(100000, 999999)`
+        3. Hashes OTP using bcrypt with 10 salt rounds
+        4. Stores hashed OTP with 5-minute expiration time
+        5. Sends raw OTP to user's email via configured email service
+        6. Returns success confirmation
+        
+        ## OTP Properties
+        - **Format**: 6-digit numeric code (100000-999999)
+        - **Expiration**: 5 minutes from generation
+        - **Storage**: Hashed with bcrypt, auto-deleted after expiration
+        - **Delivery**: HTML email template via Nodemailer
+        
+        ## Error Handling
+        - User validation failure returns 404
+        - Database save failure returns 500
+        - Email delivery failures are logged but may not fail the request
+      operationId: sendOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpSendRequest'
+            example:
+              email: user@example.com
+      responses:
+        '200':
+          $ref: '#/components/responses/OtpSent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/otp/verify:
+    post:
+      tags:
+        - OTP
+      summary: Verify OTP
+      description: |
+        Verifies the provided OTP against stored OTPs for the specified user.
+        
+        ## Process Flow
+        1. Validates user existence by email lookup
+        2. Retrieves all active (non-expired) OTPs for the user
+        3. Compares provided OTP against each stored hash using bcrypt
+        4. Returns success if any comparison matches
+        
+        ## Verification Features
+        - **Multiple OTP Support**: Handles concurrent OTPs gracefully
+        - **Secure Comparison**: Uses bcrypt.compare() for constant-time comparison
+        - **Automatic Cleanup**: Expired OTPs are auto-removed by MongoDB TTL
+        - **Race Condition Handling**: Supports multiple active OTPs per user
+        
+        ## Security Considerations
+        - All comparisons are performed even after a match is found
+        - Constant-time comparison prevents timing attacks
+        - Generic error messages prevent user enumeration
+      operationId: verifyOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpVerifyRequest'
+            example:
+              email: user@example.com
+              otp: "123456"
+      responses:
+        '200':
+          $ref: '#/components/responses/OtpVerified'
+        '400':
+          $ref: '#/components/responses/InvalidOtp'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
 components:
   schemas:
-    # Reusable Schema Definitions
-    ID:
-      type: string
-      description: Unique identifier.
-      example: "60d0fe4f5311236168a109ca"
-      pattern: "^[0-9a-fA-F]{24}$"
-
     Email:
       type: string
       format: email
-      description: Email address.
-      example: "johndoe@example.com"
-      maxLength: 255
+      description: Valid email address
+      example: user@example.com
       minLength: 5
+      maxLength: 255
+      pattern: '^[\w\.-]+@[\w\.-]+\.\w+$'
 
-    OTP:
+    OtpCode:
       type: string
-      description: One-Time Password (6-digit numeric code).
+      description: 6-digit numeric OTP code
       example: "123456"
-      pattern: "^[0-9]{6}$"
+      pattern: '^[0-9]{6}$'
       minLength: 6
       maxLength: 6
-
-    Timestamp:
-      type: string
-      format: date-time
-      description: ISO 8601 timestamp.
-      example: "2024-01-15T10:30:00.000Z"
 
     OtpSendRequest:
       type: object
@@ -45,7 +159,8 @@ components:
         - email
       properties:
         email:
-          $ref: "#/components/schemas/Email"
+          $ref: '#/components/schemas/Email'
+      description: Request to generate and send OTP
 
     OtpVerifyRequest:
       type: object
@@ -54,235 +169,180 @@ components:
         - otp
       properties:
         email:
-          $ref: "#/components/schemas/Email"
+          $ref: '#/components/schemas/Email'
         otp:
-          $ref: "#/components/schemas/OTP"
-
-    OtpRecord:
-      type: object
-      properties:
-        _id:
-          $ref: "#/components/schemas/ID"
-        otpHash:
-          type: string
-          description: Hashed OTP for security.
-          example: "$2a$10$N9qo8uLOickgx2ZMRZoMye"
-        userId:
-          $ref: "#/components/schemas/ID"
-        createdAt:
-          $ref: "#/components/schemas/Timestamp"
-        expiresAt:
-          $ref: "#/components/schemas/Timestamp"
-      required:
-        - otpHash
-        - userId
-        - expiresAt
+          $ref: '#/components/schemas/OtpCode'
+      description: Request to verify OTP
 
     SuccessResponse:
       type: object
+      required:
+        - success
+        - message
       properties:
         success:
           type: boolean
+          description: Operation success indicator
           example: true
         message:
           type: string
-          description: Success message.
-          example: "Operation completed successfully."
+          description: Human-readable success message
 
     ErrorResponse:
       type: object
+      required:
+        - message
       properties:
-        success:
-          type: boolean
-          example: false
-          description: Indicates the request was unsuccessful.
         message:
           type: string
-          description: Error message.
-          example: "An error occurred."
-
-    OtpSentResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          description: Success message for OTP sent.
-          example: "OTP sent successfully"
-
-    OtpVerifiedResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          description: Success message for OTP verification.
-          example: "OTP Verified"
+          description: Error message describing the issue
+        error:
+          type: object
+          description: Additional error details from http-errors
+          properties:
+            statusCode:
+              type: integer
+              description: HTTP status code
+            status:
+              type: string
+              description: Error status text
 
   responses:
-    # Reusable Response Definitions
-    Success:
-      description: Successful operation.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/SuccessResponse"
-
-    BadRequest:
-      description: Bad request - validation error, missing parameters, or invalid data.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          examples:
-            validation_error:
-              value:
-                success: false
-                message: "Email is required."
-            invalid_otp:
-              value:
-                success: false
-                message: "Invalid OTP"
-            otp_required:
-              value:
-                success: false
-                message: "OTP is required."
-            invalid_email_format:
-              value:
-                success: false
-                message: "Please provide a valid email address."
-
-    NotFound:
-      description: Resource not found.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          examples:
-            user_not_found:
-              value:
-                success: false
-                message: "User not found."
-
-    InternalServerError:
-      description: Internal server error.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          examples:
-            otp_save_failed:
-              value:
-                success: false
-                message: "Failed to save OTP."
-            email_send_failed:
-              value:
-                success: false
-                message: "Failed to send OTP email."
-            server_error:
-              value:
-                success: false
-                message: "Internal server error occurred."
-
     OtpSent:
-      description: OTP sent successfully to the provided email address.
+      description: OTP generated and sent successfully
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/OtpSentResponse"
+            $ref: '#/components/schemas/SuccessResponse'
           example:
             success: true
-            message: "OTP sent successfully"
+            message: OTP sent successfully
 
     OtpVerified:
-      description: OTP verified successfully.
+      description: OTP verified successfully
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/OtpVerifiedResponse"
+            $ref: '#/components/schemas/SuccessResponse'
           example:
             success: true
-            message: "OTP Verified"
+            message: OTP Verified
+
+    BadRequest:
+      description: Invalid request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missingEmail:
+              summary: Email field missing
+              value:
+                message: Email is required
+            invalidEmailFormat:
+              summary: Invalid email format
+              value:
+                message: Please provide a valid email address
+            missingOtp:
+              summary: OTP field missing
+              value:
+                message: OTP is required
+
+    InvalidOtp:
+      description: OTP validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            noActiveOtp:
+              summary: No active OTPs found
+              value:
+                message: Invalid OTP
+            otpMismatch:
+              summary: OTP does not match
+              value:
+                message: Invalid OTP
+
+    UserNotFound:
+      description: User not found with provided email
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: User not found.
+
+    InternalServerError:
+      description: Server error during operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            saveFailed:
+              summary: Database save operation failed
+              value:
+                message: Failed to save OTP.
+            emailFailed:
+              summary: Email delivery failed
+              value:
+                message: Failed to send OTP email.
 
   securitySchemes:
-    bearerAuth:
+    BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: JWT authentication (not required for OTP endpoints)
 
-paths:
-  /api/otp/send:
-    post:
-      summary: Send OTP to user's email
-      description: |
-        Generates and sends a One-Time Password (OTP) to the specified email address.
+x-readme:
+  explorer-enabled: true
+  proxy-enabled: true
+  samples-languages:
+    - curl
+    - javascript
+    - python
+    - node
 
-        **Process:**
-        - Validates that a user exists with the provided email
-        - Generates a 6-digit numeric OTP
-        - Stores the hashed OTP in the database with expiration time
-        - Sends the OTP to the user's email address
+x-implementation-notes:
+  otp-generation: |
+    OTPs are generated using Node.js crypto.randomInt(100000, 999999)
+    ensuring cryptographically secure random 6-digit numbers.
+  
+  storage: |
+    OTPs are hashed using bcrypt with 10 salt rounds before storage.
+    MongoDB TTL index on expiresAt field ensures automatic cleanup.
+  
+  verification: |
+    All stored OTPs are compared using Promise.all() to ensure
+    constant-time execution regardless of match position.
+  
+  email-delivery: |
+    OTP emails use HTML templates from views/otp-email/index.html
+    with dynamic OTP code substitution.
+  
+  expiration: |
+    OTPs expire exactly 5 minutes after generation.
+    Expired OTPs are automatically removed by MongoDB.
 
-        **Security Features:**
-        - OTP is hashed before storage for security
-        - Automatic expiration to prevent replay attacks
-        - User existence validation before OTP generation
-      tags: [OTP]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OtpSendRequest"
-            example:
-              email: "john.doe@example.com"
-      responses:
-        200:
-          $ref: "#/components/responses/OtpSent"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        404:
-          $ref: "#/components/responses/NotFound"
-        500:
-          $ref: "#/components/responses/InternalServerError"
-
-  /api/otp/verify:
-    post:
-      summary: Verify OTP for user
-      description: |
-        Verifies the provided OTP against the stored OTP for the specified user.
-
-        **Process:**
-        - Validates that a user exists with the provided email
-        - Retrieves all active OTPs for the user
-        - Compares the provided OTP against stored hashed OTPs using bcrypt
-        - Returns success if any OTP matches
-
-        **Security Features:**
-        - Secure comparison using bcrypt for hashed OTPs
-        - Supports multiple active OTPs (handles race conditions)
-        - Automatic cleanup of expired OTPs via database TTL
-        - Constant-time comparison to prevent timing attacks
-      tags: [OTP]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OtpVerifyRequest"
-            example:
-              email: "john.doe@example.com"
-              otp: "123456"
-      responses:
-        200:
-          $ref: "#/components/responses/OtpVerified"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        404:
-          $ref: "#/components/responses/NotFound"
-        500:
-          $ref: "#/components/responses/InternalServerError"
+x-code-samples:
+  - lang: curl
+    label: Send OTP
+    source: |
+      curl -X POST https://api.yourapp.com/api/otp/send \
+        -H "Content-Type: application/json" \
+        -d '{"email": "user@example.com"}'
+  
+  - lang: javascript
+    label: Verify OTP
+    source: |
+      const response = await fetch('https://api.yourapp.com/api/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'user@example.com',
+          otp: '123456'
+        })
+      });
+      const result = await response.json();

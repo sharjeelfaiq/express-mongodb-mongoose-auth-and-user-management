@@ -1,19 +1,16 @@
-import { asyncHandler, getCookieOptions } from "#utils/index.js";
-import { env } from "#config/index.js";
-import authService from "./auth.services.js";
+import { asyncHandler } from "#utils/index.js";
+import { authServices } from "./auth.services.js";
 
-const { COOKIE_NAME } = env;
-
-const authController = {
+export const authControllers = {
   signUp: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authService.signUp(payload);
+    const result = await authServices.signUp(payload);
     res.status(201).json(result);
   }),
 
   signIn: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authService.signIn(payload);
+    const result = await authServices.signIn(payload);
     const { token } = result;
 
     res
@@ -31,28 +28,20 @@ const authController = {
       return res.status(400).json({ message: "No token found" });
     }
 
-    const result = await authService.signOut(token);
-
-    const options = getCookieOptions(false);
-    res.clearCookie(COOKIE_NAME, {
-      ...options,
-      maxAge: undefined,
-    });
+    const result = await authServices.signOut(token);
 
     res.status(200).json(result);
   }),
 
   forgetPassword: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authService.forgetPassword(payload);
+    const result = await authServices.forgetPassword(payload);
     res.status(200).json(result);
   }),
 
   updatePassword: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authService.updatePassword(payload);
+    const result = await authServices.updatePassword(payload);
     res.status(200).json(result);
   }),
 };
-
-export default authController;

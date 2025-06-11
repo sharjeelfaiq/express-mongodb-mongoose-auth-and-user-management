@@ -1,15 +1,15 @@
 import { asyncHandler } from "#utils/index.js";
-import userService from "./user.services.js";
+import { userServices } from "./user.services.js";
 
-const userController = {
+export const userControllers = {
   getAll: asyncHandler(async (_, res) => {
-    const result = await userService.getAll();
+    const result = await userServices.getAll();
     res.status(200).json(result);
   }),
 
   getById: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const result = await userService.getById(id);
+    const result = await userServices.getById(id);
     res.status(200).json(result);
   }),
 
@@ -22,15 +22,13 @@ const userController = {
       userData.profilePicture = `/uploads/${file.filename}`;
     }
 
-    const result = await userService.updateById(id, userData);
+    const result = await userServices.updateById(id, userData);
     res.status(200).json(result);
   }),
 
   deleteById: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const result = await userService.deleteById(id);
+    const result = await userServices.deleteById(id);
     res.status(204).json(result);
   }),
 };
-
-export default userController;
