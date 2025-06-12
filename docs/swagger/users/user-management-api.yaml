@@ -15,6 +15,7 @@ info:
     - All endpoints require valid JWT authentication token
     - DELETE operations require admin role privileges
     - Tokens obtained from Authentication API sign-in endpoint
+
   contact:
     name: API Support
     email: support@yourapi.com
@@ -25,9 +26,9 @@ info:
 servers:
   - url: https://api.yourapp.com
     description: Production server
-  - url: https://staging-api.yourapp.com
+  - url: https://romulus-backend.onrender.com
     description: Staging server
-  - url: http://localhost:3000
+  - url: http://localhost:5000
     description: Development server
 
 tags:
@@ -36,37 +37,44 @@ tags:
 
 components:
   schemas:
-    # Primitive Types
+    # ================================
+    # PRIMITIVE TYPES
+    # ================================
     ID:
       type: string
       description: MongoDB ObjectId identifier
       example: "60d0fe4f5311236168a109ca"
       pattern: "^[0-9a-fA-F]{24}$"
+      minLength: 24
+      maxLength: 24
 
     Email:
       type: string
       format: email
       description: Valid email address (lowercase, trimmed)
-      example: "johndoe@example.com"
+      example: "user@example.com"
       maxLength: 255
       minLength: 5
       pattern: "^\\S+@\\S+\\.\\S+$"
 
+    PhoneNumber:
+      type: string
+      description: Phone number in international format
+      example: "+1234567890"
+      pattern: "^\\+?[1-9]\\d{1,14}$"
+      minLength: 10
+      maxLength: 15
+
     Role:
       type: string
-      enum: [admin, user]
+      enum: [admin, organization, educator]
       description: |
-        User role determining system access:
-        - `admin`: Full system access including user management
-        - `user`: User-level access
-      default: user
-      example: user
-
-    ProfilePictureUrl:
-      type: string
-      description: Relative URL path to uploaded profile picture
-      example: "/uploads/profile-picture-123.jpg"
-      pattern: "^/uploads/[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|gif)$"
+        User role determining access permissions:
+        - `admin`: Full system access
+        - `organization`: Organization management
+        - `educator`: Content creation and student management
+      default: educator
+      example: educator
 
     Timestamp:
       type: string
@@ -74,56 +82,15 @@ components:
       description: ISO 8601 timestamp with timezone
       example: "2024-01-15T10:30:00.000Z"
 
-    # Core User Profile (matching actual UserModel)
-    UserProfile:
-      type: object
-      required:
-        - _id
-        - email
-        - role
-        - isEmailVerified
-        - createdAt
-        - updatedAt
-      properties:
-        _id:
-          $ref: "#/components/schemas/ID"
-        email:
-          $ref: "#/components/schemas/Email"
-        role:
-          $ref: "#/components/schemas/Role"
-        isEmailVerified:
-          type: boolean
-          description: Email verification status
-          example: true
-        profilePicture:
-          allOf:
-            - $ref: "#/components/schemas/ProfilePictureUrl"
-          nullable: true
-          description: Profile picture URL (set via file upload)
-        createdAt:
-          $ref: "#/components/schemas/Timestamp"
-        updatedAt:
-          $ref: "#/components/schemas/Timestamp"
-      example:
-        _id: "60d0fe4f5311236168a109ca"
-        email: "johndoe@example.com"
-        role: "user"
-        isEmailVerified: true
-        profilePicture: "/uploads/profile-123.jpg"
-        createdAt: "2024-01-15T10:30:00.000Z"
-        updatedAt: "2024-01-15T12:45:00.000Z"
+    ProfilePictureUrl:
+      type: string
+      description: Relative URL path to uploaded profile picture
+      example: "/uploads/profile-picture-123.jpg"
+      pattern: "^/uploads/[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|gif)$"
 
-    # Request/Response DTOs
-    UserUpdateRequest:
-      type: object
-      properties:
-        profilePicture:
-          type: string
-          format: binary
-          description: Profile picture file to upload (jpg, jpeg, png, gif)
-      description: |
-        User profile update data. Profile picture upload will replace existing picture and delete old file.
-
+    # ================================
+    # RESPONSE STRUCTURES
+    # ================================
     BaseResponse:
       type: object
       required:
@@ -132,10 +99,11 @@ components:
       properties:
         success:
           type: boolean
-          description: Operation success indicator
+          description: Indicates if the operation completed successfully
         message:
           type: string
           description: Human-readable response message
+          example: "Operation completed successfully"
 
     ErrorResponse:
       allOf:
@@ -147,6 +115,71 @@ components:
             message:
               example: "An error occurred processing your request"
 
+    # ================================
+    # USER RELATED SCHEMAS
+    # ================================
+    UserProfile:
+      type: object
+      required:
+        - _id
+        - email
+        - role
+        - isEmailVerified
+        - isPhoneVerified
+        - createdAt
+        - updatedAt
+      properties:
+        _id:
+          $ref: "#/components/schemas/ID"
+        email:
+          $ref: "#/components/schemas/Email"
+        phone:
+          allOf:
+            - $ref: "#/components/schemas/PhoneNumber"
+          nullable: true
+          description: Phone number (required for educators)
+        role:
+          $ref: "#/components/schemas/Role"
+        isEmailVerified:
+          type: boolean
+          description: Email verification status
+          example: true
+        isPhoneVerified:
+          type: boolean
+          description: Phone verification status (required for educators)
+          example: false
+        profilePicture:
+          allOf:
+            - $ref: "#/components/schemas/ProfilePictureUrl"
+          nullable: true
+          description: Profile picture URL
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+
+    # ================================
+    # REQUEST SCHEMAS
+    # ================================
+    UserUpdateRequest:
+      type: object
+      properties:
+        phone:
+          allOf:
+            - $ref: "#/components/schemas/PhoneNumber"
+          nullable: true
+          description: Updated phone number
+        profilePicture:
+          type: string
+          format: binary
+          description: Profile picture file to upload (jpg, jpeg, png, gif)
+      description: |
+        User profile update data. All fields are optional for partial updates.
+        Profile picture upload will replace existing picture and delete old file.
+
+    # ================================
+    # RESPONSE SCHEMAS
+    # ================================
     UserResponse:
       allOf:
         - $ref: "#/components/schemas/BaseResponse"
@@ -162,8 +195,9 @@ components:
             data:
               _id: "60d0fe4f5311236168a109ca"
               email: "johndoe@example.com"
-              role: "user"
+              role: "educator"
               isEmailVerified: true
+              isPhoneVerified: false
 
     UserListResponse:
       allOf:
@@ -178,36 +212,46 @@ components:
                 $ref: "#/components/schemas/UserProfile"
               description: Array of user profiles
           examples:
-            with_users:
+            withUsers:
               summary: Users found
               value:
                 success: true
                 message: "Users retrieved successfully"
                 data:
-                  [
-                    {
-                      _id: "60d0fe4f5311236168a109ca",
-                      email: "johndoe@example.com",
-                      role: "user",
-                    },
-                  ]
-            empty_list:
+                  - _id: "60d0fe4f5311236168a109ca"
+                    email: "johndoe@example.com"
+                    role: "educator"
+                    isEmailVerified: true
+                    isPhoneVerified: false
+            emptyList:
               summary: No users found
               value:
                 success: true
                 message: "No users found"
                 data: []
 
-    UserDeleteResponse:
-      allOf:
-        - $ref: "#/components/schemas/BaseResponse"
-        - type: object
-          example:
-            success: true
-            message: "User deleted successfully"
+  parameters:
+    UserIdPath:
+      in: path
+      name: id
+      required: true
+      description: MongoDB ObjectId of the user
+      schema:
+        $ref: "#/components/schemas/ID"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from the authentication sign-in endpoint.
+        Include in the Authorization header as: `Bearer <token>`
 
   responses:
-    # Success Responses
+    # ================================
+    # SUCCESS RESPONSES
+    # ================================
     UserListSuccess:
       description: User list retrieved successfully
       content:
@@ -215,8 +259,8 @@ components:
           schema:
             $ref: "#/components/schemas/UserListResponse"
 
-    UserSuccess:
-      description: User operation completed successfully
+    UserRetrievalSuccess:
+      description: User retrieved successfully
       content:
         application/json:
           schema:
@@ -234,7 +278,8 @@ components:
             data:
               _id: "60d0fe4f5311236168a109ca"
               email: "johndoe@example.com"
-              role: "user"
+              phone: "+1987654321"
+              role: "educator"
               profilePicture: "/uploads/new-profile-456.jpg"
 
     UserDeleteSuccess:
@@ -242,123 +287,101 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/UserDeleteResponse"
+            allOf:
+              - $ref: "#/components/schemas/BaseResponse"
+              - type: object
+                example:
+                  success: true
+                  message: "User deleted successfully"
 
-    # Error Responses
-    BadRequest:
+    # ================================
+    # ERROR RESPONSES
+    # ================================
+    UserManagementBadRequest:
       description: Invalid request data or parameters
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "common.yaml#/components/schemas/ErrorResponse"
           examples:
-            invalid_user_id:
+            invalidUserId:
               summary: Invalid MongoDB ObjectId format
               value:
                 success: false
                 message: "Invalid user ID format"
-            file_upload_error:
+                error:
+                  code: "INVALID_USER_ID"
+            validationError:
+              summary: Phone number validation failed
+              value:
+                success: false
+                message: "Please provide a valid phone number"
+                error:
+                  code: "PHONE_VALIDATION"
+            fileUploadError:
               summary: Profile picture upload failed
               value:
                 success: false
                 message: "Invalid file format. Only jpg, jpeg, png, gif allowed"
+                error:
+                  code: "INVALID_FILE_FORMAT"
 
-    Unauthorized:
-      description: Authentication token missing or invalid
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          examples:
-            missing_token:
-              summary: No authentication token provided
-              value:
-                success: false
-                message: "Access token is required"
-            invalid_token:
-              summary: Token expired or malformed
-              value:
-                success: false
-                message: "Invalid or expired token"
-
-    Forbidden:
+    UserManagementForbidden:
       description: Insufficient permissions for requested operation
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "common.yaml#/components/schemas/ErrorResponse"
           examples:
-            admin_required:
+            adminRequired:
               summary: Admin role required for user deletion
               value:
                 success: false
                 message: "Admin access required"
-            insufficient_permissions:
+                error:
+                  code: "ADMIN_REQUIRED"
+            insufficientPermissions:
               summary: General permission denied
               value:
                 success: false
                 message: "You don't have permission to perform this action"
+                error:
+                  code: "INSUFFICIENT_PERMISSIONS"
 
-    NotFound:
-      description: Requested user not found
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          examples:
-            user_not_found:
-              summary: User ID does not exist
-              value:
-                success: false
-                message: "User not found"
-
-    InternalServerError:
+    UserManagementInternalServerError:
       description: Unexpected server error occurred
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "common.yaml#/components/schemas/ErrorResponse"
           examples:
-            update_failed:
+            updateFailed:
               summary: Database update operation failed
               value:
                 success: false
                 message: "User update failed"
-            file_system_error:
+                error:
+                  code: "UPDATE_FAILED"
+            fileSystemError:
               summary: File operation failed
               value:
                 success: false
                 message: "Failed to process profile picture"
-            server_error:
-              summary: General server error
+                error:
+                  code: "FILE_SYSTEM_ERROR"
+            deleteFailed:
+              summary: User deletion failed
               value:
                 success: false
-                message: "Internal server error occurred"
-
-  parameters:
-    UserIDPath:
-      in: path
-      name: id
-      required: true
-      description: MongoDB ObjectId of the user to operate on
-      schema:
-        $ref: "#/components/schemas/ID"
-      example: "60d0fe4f5311236168a109ca"
-
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: |
-        JWT token obtained from the Authentication API sign-in endpoint.
-        Include in the Authorization header as: `Bearer <token>`
+                message: "Failed to delete user"
+                error:
+                  code: "DELETE_FAILED"
 
 security:
-  - bearerAuth: []
+  - BearerAuth: []
 
 paths:
-  /api/users:
+  /api/v1/users:
     get:
       summary: Retrieve all users
       description: |
@@ -372,17 +395,19 @@ paths:
         - Returns empty array with success message when no users exist
         - All user objects exclude sensitive password information
         - Includes user verification status and timestamps
-      operationId: getAllUsers
+      operationId: get-all-users
       tags: [User Management]
+      security:
+        - BearerAuth: []
       responses:
         200:
           $ref: "#/components/responses/UserListSuccess"
         401:
-          $ref: "#/components/responses/Unauthorized"
+          $ref: "common.yaml#/components/responses/Unauthorized"
         500:
-          $ref: "#/components/responses/InternalServerError"
+          $ref: "#/components/responses/UserManagementInternalServerError"
 
-  /api/users/{id}:
+  /api/v1/users/{id}:
     get:
       summary: Retrieve user by ID
       description: |
@@ -396,21 +421,23 @@ paths:
         - Returns complete user profile including verification status
         - Validates MongoDB ObjectId format
         - Throws 404 if user does not exist
-      operationId: getUserById
+      operationId: get-user-by-id
       tags: [User Management]
+      security:
+        - BearerAuth: []
       parameters:
-        - $ref: "#/components/parameters/UserIDPath"
+        - $ref: "common.yaml#/components/parameters/UserIdPath"
       responses:
         200:
-          $ref: "#/components/responses/UserSuccess"
+          $ref: "#/components/responses/UserRetrievalSuccess"
         400:
-          $ref: "#/components/responses/BadRequest"
+          $ref: "#/components/responses/UserManagementBadRequest"
         401:
-          $ref: "#/components/responses/Unauthorized"
+          $ref: "common.yaml#/components/responses/Unauthorized"
         404:
-          $ref: "#/components/responses/NotFound"
+          $ref: "common.yaml#/components/responses/NotFound"
         500:
-          $ref: "#/components/responses/InternalServerError"
+          $ref: "#/components/responses/UserManagementInternalServerError"
 
     patch:
       summary: Update user profile
@@ -422,7 +449,9 @@ paths:
         **Content-Type:** multipart/form-data (for file upload support)
 
         **Features:**
+        - Partial updates supported (only provided fields updated)
         - Profile picture upload with automatic old file cleanup
+        - Phone number format validation
         - Returns updated user object
 
         **File Upload:**
@@ -434,10 +463,13 @@ paths:
         **Error Handling:**
         - 404 if user not found
         - 500 if database update fails
-      operationId: updateUserById
+        - Validation errors for invalid phone format
+      operationId: update-user-by-id
       tags: [User Management]
+      security:
+        - BearerAuth: []
       parameters:
-        - $ref: "#/components/parameters/UserIDPath"
+        - $ref: "common.yaml#/components/parameters/UserIdPath"
       requestBody:
         required: true
         content:
@@ -445,21 +477,30 @@ paths:
             schema:
               $ref: "#/components/schemas/UserUpdateRequest"
             examples:
-              upload_picture:
+              updatePhone:
+                summary: Update phone number only
+                value:
+                  phone: "+1987654321"
+              uploadPicture:
                 summary: Upload new profile picture
                 value:
+                  profilePicture: "[binary file data]"
+              fullUpdate:
+                summary: Update phone and picture
+                value:
+                  phone: "+1555123456"
                   profilePicture: "[binary file data]"
       responses:
         200:
           $ref: "#/components/responses/UserUpdateSuccess"
         400:
-          $ref: "#/components/responses/BadRequest"
+          $ref: "#/components/responses/UserManagementBadRequest"
         401:
-          $ref: "#/components/responses/Unauthorized"
+          $ref: "common.yaml#/components/responses/Unauthorized"
         404:
-          $ref: "#/components/responses/NotFound"
+          $ref: "common.yaml#/components/responses/NotFound"
         500:
-          $ref: "#/components/responses/InternalServerError"
+          $ref: "#/components/responses/UserManagementInternalServerError"
 
     delete:
       summary: Delete user account
@@ -477,18 +518,21 @@ paths:
 
         **Note:** Implementation returns 204 No Content with JSON body,
         which is unconventional but matches actual controller behavior.
-      operationId: deleteUserById
+      operationId: delete-user-by-id
       tags: [User Management]
+      security:
+        - BearerAuth: []
       parameters:
-        - $ref: "#/components/parameters/UserIDPath"
+        - $ref: "common.yaml#/components/parameters/UserIdPath"
       responses:
         204:
           $ref: "#/components/responses/UserDeleteSuccess"
         401:
-          $ref: "#/components/responses/Unauthorized"
+          $ref: "common.yaml#/components/responses/Unauthorized"
         403:
-          $ref: "#/components/responses/Forbidden"
+          $ref: "#/components/responses/UserManagementForbidden"
         404:
-          $ref: "#/components/responses/NotFound"
+          $ref: "common.yaml#/components/responses/NotFound"
         500:
-          $ref: "#/components/responses/InternalServerError"
+          $ref: "#/components/responses/UserManagementInternalServerError"
+# Removed duplicate components section to ensure unique map keys
