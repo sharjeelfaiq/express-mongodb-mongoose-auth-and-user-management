@@ -13,7 +13,7 @@ export const user = {
 
   read: {
     allUsers: async () => {
-      return await UserModel.find().select("-password");
+      return await UserModel.find();
     },
 
     userByEmail: async (email) => {
@@ -23,7 +23,7 @@ export const user = {
     },
 
     userById: async (id) => {
-      return await UserModel.findById(id).select("-password");
+      return await UserModel.findById(id);
     },
   },
 

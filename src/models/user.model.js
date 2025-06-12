@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import createError from "http-errors";
 
 import { env } from "#config/index.js";
 
@@ -15,20 +16,17 @@ const UserSchema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        "Please provide a valid email address",
-      ],
+      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
-    password: {
+   password: {
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
-      select: false,
       match: [
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
         "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
       ],
+      select: false,
     },
     role: {
       type: String,
@@ -51,37 +49,43 @@ const UserSchema = new Schema(
         return ret;
       },
     },
-  }
+  },
 );
 
-// Indexes for performance
-UserSchema.index({ role: 1 });
-
 UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
   next();
 });
 
 UserSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
-      id: this._id,
       role: this.role,
     },
     JWT_SECRET_KEY,
     {
       expiresIn: JWT_EXPIRY,
       algorithm: JWT_ALGORITHM,
-    }
+    },
   );
   return token;
 };
 
 UserSchema.methods.comparePassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  try {
+    const isMatch = await bcrypt.compare(password, this.password);
+
+    if (!isMatch) {
+      throw createError(401, "Invalid credentials");
+    }
+
+    return isMatch;
+  } catch (error) {
+    throw createError(500, error.message);
+  }
 };
 
 export const UserModel = model("User", UserSchema);
