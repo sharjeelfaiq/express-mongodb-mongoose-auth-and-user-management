@@ -1,9 +1,15 @@
+import createError from "http-errors";
+import mongoose from "mongoose";
+
 import { UserModel } from "#models/index.js";
+
+const { isValidObjectId } = mongoose;
 
 export const user = {
   save: {
-    user: async (email, password, role) => {
+    user: async (phone, email, password, role) => {
       return await UserModel.create({
+        phone,
         email,
         password,
         role,
@@ -23,12 +29,20 @@ export const user = {
     },
 
     userById: async (id) => {
+      if (!isValidObjectId(id)) {
+        throw createError(400, "Invalid user ID format.");
+      }
+
       return await UserModel.findById(id);
     },
   },
 
   update: {
     userById: async (id, userData) => {
+      if (!isValidObjectId(id)) {
+        throw createError(400, "Invalid user ID format.");
+      }
+
       return await UserModel.findByIdAndUpdate(id, userData, {
         new: true,
         upsert: true,
@@ -53,6 +67,10 @@ export const user = {
 
   remove: {
     userById: async (id) => {
+      if (!isValidObjectId(id)) {
+        throw createError(400, "Invalid user ID format.");
+      }
+
       return await UserModel.findByIdAndDelete(id);
     },
   },
