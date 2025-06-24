@@ -8,7 +8,7 @@ const OtpSchema = new Schema({
     required: [true, "OTP hash is required"],
     trim: true,
   },
-  userId: {
+  id: {
     type: Schema.Types.ObjectId,
     required: true,
     ref: "User",
@@ -25,7 +25,7 @@ const OtpSchema = new Schema({
   },
 });
 
-OtpSchema.index({ userId: 1, expiresAt: 1 });
+OtpSchema.index({ id: 1, expiresAt: 1 });
 
 OtpSchema.pre("save", function (next) {
   if (this.expiresAt <= this.createdAt) {

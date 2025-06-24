@@ -1,0 +1,278 @@
+openapi: 3.0.3
+info:
+  title: Twilio API
+  version: v1
+  description: |
+    WhatsApp OTP verification service using Twilio Verify API for secure phone number verification.
+
+    **Features:**
+    - WhatsApp-based OTP delivery
+    - 6-digit numeric verification codes
+    - Automatic phone verification status updates
+    - International phone number support
+
+    **Flow:**
+    1. Send OTP to phone number via WhatsApp
+    2. User receives OTP code through WhatsApp
+    3. Verify OTP code to confirm phone ownership
+    4. User's phone verification status updated automatically
+
+  contact:
+    name: API Support
+    email: support@yourapi.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.yourapp.com
+    description: Production server
+  - url: https://romulus-backend.onrender.com
+    description: Staging server
+  - url: http://localhost:5000
+    description: Development server
+
+tags:
+  - name: Twilio
+    description: WhatsApp OTP verification services
+
+components:
+  schemas:
+    # ================================
+    # REQUEST SCHEMAS
+    # ================================
+    SendOTPRequest:
+      type: object
+      required:
+        - phone
+      properties:
+        phone:
+          type: string
+          description: Phone number in international format
+          example: "+1234567890"
+          pattern: "^\\+?[1-9]\\d{1,14}$"
+          minLength: 10
+          maxLength: 15
+      example:
+        phone: "+1234567890"
+
+    VerifyOTPRequest:
+      type: object
+      required:
+        - phone
+        - code
+      properties:
+        phone:
+          type: string
+          description: Phone number in international format (same as used for sending)
+          example: "+1234567890"
+          pattern: "^\\+?[1-9]\\d{1,14}$"
+          minLength: 10
+          maxLength: 15
+        code:
+          type: string
+          description: 6-digit numeric OTP code received via WhatsApp
+          example: "123456"
+          pattern: "^[0-9]{6}$"
+          minLength: 6
+          maxLength: 6
+      example:
+        phone: "+1234567890"
+        code: "123456"
+
+    # ================================
+    # RESPONSE SCHEMAS
+    # ================================
+    BaseResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation completed successfully
+        message:
+          type: string
+          description: Human-readable response message
+          example: "Operation completed successfully"
+
+    ErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            success:
+              example: false
+            message:
+              example: "An error occurred processing your request"
+            code:
+              type: string
+              description: Error code for programmatic handling
+              example: "VALIDATION_ERROR"
+            field:
+              type: string
+              description: Field name that caused the validation error
+              example: "phone"
+
+  responses:
+    # ================================
+    # SUCCESS RESPONSES
+    # ================================
+    SendOTPSuccess:
+      description: OTP sent successfully via WhatsApp
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BaseResponse"
+          example:
+            success: true
+            message: "OTP sent successfully"
+
+    VerifyOTPSuccess:
+      description: OTP verified successfully and phone verification status updated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BaseResponse"
+          example:
+            success: true
+            message: "OTP verified successfully"
+
+    # ================================
+    # ERROR RESPONSES
+    # ================================
+    BadRequest:
+      description: Invalid request data or OTP verification failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalidPhoneFormat:
+              summary: Invalid phone number format
+              value:
+                success: false
+                message: "Phone number must be in international format"
+                code: "PHONE_FORMAT_INVALID"
+                field: "phone"
+            invalidOTPCode:
+              summary: Invalid or expired OTP code
+              value:
+                success: false
+                message: "Invalid OTP"
+                code: "OTP_VERIFICATION_FAILED"
+                field: "code"
+            otpCodeFormat:
+              summary: OTP code format validation
+              value:
+                success: false
+                message: "OTP code must be 6 digits"
+                code: "OTP_FORMAT_INVALID"
+                field: "code"
+
+    InternalServerError:
+      description: Twilio service error or unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            twilioServiceError:
+              summary: Twilio OTP sending failed
+              value:
+                success: false
+                message: "Failed to send OTP"
+                code: "TWILIO_OTP_SEND_FAILED"
+            serverError:
+              summary: Internal server error
+              value:
+                success: false
+                message: "Internal server error occurred"
+
+paths:
+  /api/v1/twilio/send-otp:
+    post:
+      summary: Send WhatsApp OTP
+      description: |
+        Sends a 6-digit OTP code to the specified phone number via WhatsApp using Twilio Verify API.
+
+        **Requirements:**
+        - Phone number must be in international format (E.164)
+        - WhatsApp must be available on the target phone number
+        - User must have WhatsApp installed and active
+
+        **Rate Limiting:**
+        - Multiple requests to the same number may be rate-limited by Twilio
+        - Previous OTP codes may be invalidated when new ones are sent
+
+        **Security:**
+        - OTP codes expire automatically (Twilio default: 10 minutes)
+        - Each phone number can have only one active verification session
+      operationId: send-whatsapp-otp
+      tags: [Twilio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOTPRequest"
+            examples:
+              validRequest:
+                summary: Send OTP to international number
+                value:
+                  phone: "+1234567890"
+              educatorVerification:
+                summary: Educator phone verification
+                value:
+                  phone: "+919876543210"
+      responses:
+        200:
+          $ref: "#/components/responses/SendOTPSuccess"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/twilio/verify-otp:
+    post:
+      summary: Verify WhatsApp OTP
+      description: |
+        Verifies the OTP code received via WhatsApp and updates the user's phone verification status.
+
+        **Process:**
+        1. Validates OTP code against Twilio Verify service
+        2. If valid, updates user's `isPhoneVerified` status to `true`
+        3. Invalidates the verification session after successful verification
+
+        **Important:**
+        - Phone number must match exactly with the one used for sending OTP
+        - OTP codes are single-use and expire automatically
+        - Successful verification permanently updates user verification status
+        - Failed attempts may be rate-limited by Twilio
+      operationId: verify-whatsapp-otp
+      tags: [Twilio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyOTPRequest"
+            examples:
+              validVerification:
+                summary: Verify OTP code
+                value:
+                  phone: "+1234567890"
+                  code: "123456"
+              educatorVerification:
+                summary: Educator completing phone verification
+                value:
+                  phone: "+919876543210"
+                  code: "654321"
+      responses:
+        200:
+          $ref: "#/components/responses/VerifyOTPSuccess"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        500:
+          $ref: "#/components/responses/InternalServerError"

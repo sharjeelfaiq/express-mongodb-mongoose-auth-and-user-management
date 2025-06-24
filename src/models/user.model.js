@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import createError from "http-errors";
 
 import { env } from "#config/index.js";
 
@@ -10,6 +9,13 @@ const { Schema, model } = mongoose;
 
 const UserSchema = new Schema(
   {
+    phone: {
+      type: String,
+      required: [true, "Phone number is required"],
+      unique: true,
+      trim: true,
+      match: [/^\+?[1-9]\d{1,14}$/, "Please provide a valid phone number"],
+    },
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -18,7 +24,7 @@ const UserSchema = new Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
-   password: {
+    password: {
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
@@ -40,16 +46,14 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
-    toJSON: {
-      transform: (doc, ret) => {
-        delete ret.password;
-        return ret;
-      },
-    },
-  },
+  }
 );
 
 UserSchema.pre("save", async function (next) {
@@ -61,7 +65,7 @@ UserSchema.pre("save", async function (next) {
 });
 
 UserSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign(
+  return jwt.sign(
     {
       role: this.role,
     },
@@ -69,23 +73,12 @@ UserSchema.methods.generateAuthToken = function () {
     {
       expiresIn: JWT_EXPIRY,
       algorithm: JWT_ALGORITHM,
-    },
+    }
   );
-  return token;
 };
 
 UserSchema.methods.comparePassword = async function (password) {
-  try {
-    const isMatch = await bcrypt.compare(password, this.password);
-
-    if (!isMatch) {
-      throw createError(401, "Invalid credentials");
-    }
-
-    return isMatch;
-  } catch (error) {
-    throw createError(500, error.message);
-  }
+  return await bcrypt.compare(password, this.password);
 };
 
 export const UserModel = model("User", UserSchema);

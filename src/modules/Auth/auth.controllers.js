@@ -11,13 +11,8 @@ export const authControllers = {
   signIn: asyncHandler(async (req, res) => {
     const payload = req.body;
     const result = await authServices.signIn(payload);
-    const { token } = result;
 
-    res
-      .status(200)
-      .header("Authorization", `Bearer ${token}`)
-      .header("Access-Control-Expose-Headers", "Authorization")
-      .json(result);
+    res.status(200).json(result);
   }),
 
   signOut: asyncHandler(async (req, res) => {

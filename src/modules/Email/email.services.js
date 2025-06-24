@@ -17,7 +17,7 @@ export const emailServices = {
       throw createError(400, "Invalid token");
     }
 
-    const id = decoded["userId"];
+    const id = decoded["id"];
     if (!id) {
       throw createError(400, "Token does not contain the user id");
     }

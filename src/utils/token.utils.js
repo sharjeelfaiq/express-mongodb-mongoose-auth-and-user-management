@@ -5,10 +5,10 @@ import { env, logger } from "#config/index.js";
 
 const { JWT_SECRET_KEY, JWT_SHORT_EXPIRY, JWT_LONG_EXPIRY } = env;
 
-const generateToken = (userId, role, isRemembered = false) => {
+const generateToken = (id, role, isRemembered = false) => {
   try {
     const expiry = isRemembered ? JWT_LONG_EXPIRY : JWT_SHORT_EXPIRY;
-    return jwt.sign({ userId, role }, JWT_SECRET_KEY, {
+    return jwt.sign({ id, role }, JWT_SECRET_KEY, {
       expiresIn: expiry,
     });
   } catch (error) {

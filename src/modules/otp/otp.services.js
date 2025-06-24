@@ -17,7 +17,7 @@ export const otpServices = {
 
     const isOtpSaved = await save.otp({
       otpHash: hashedOtp,
-      userId: existingUser._id,
+      id: existingUser._id,
       expiresAt,
     });
 

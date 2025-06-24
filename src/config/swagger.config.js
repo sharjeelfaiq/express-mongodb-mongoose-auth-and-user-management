@@ -32,7 +32,7 @@ const swaggerOptions = {
       },
     },
   },
-  apis: [join(__dirname, "../../docs/swagger/*.yaml")],
+  apis: [join(__dirname, "../../docs/swagger/**/*.yaml")],
 };
 
 export const swaggerSpec = swaggerJSDoc(swaggerOptions);

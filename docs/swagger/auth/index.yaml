@@ -195,14 +195,14 @@ components:
     # ================================
     # RESPONSE DATA SCHEMAS
     # ================================
-    SignInData:
+    UserData:
       type: object
       required:
         - userId
         - role
       properties:
         userId:
-          $ref: "#/components/schemas/ID"
+          $ref: "#/components/schemas/UserID"
         role:
           $ref: "#/components/schemas/Role"
       example:
@@ -216,9 +216,17 @@ components:
       allOf:
         - $ref: "#/components/schemas/BaseResponse"
         - type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: "#/components/schemas/UserData"
           example:
             success: true
             message: "Account registered successfully. Please verify your email address."
+            data:
+              userId: "60d0fe4f5311236168a109ca"
+              role: "educator"
 
     SignInResponse:
       allOf:
@@ -229,7 +237,7 @@ components:
             - token
           properties:
             data:
-              $ref: "#/components/schemas/SignInData"
+              $ref: "#/components/schemas/UserData"
             token:
               $ref: "#/components/schemas/Token"
           example:
@@ -393,6 +401,9 @@ paths:
         1. Email verification link sent to provided address
         2. For educators: WhatsApp SMS verification sent to phone
         3. User must complete verification before signing in
+
+        **Response:**
+        Returns user ID and role for client-side handling
       operationId: sign-up
       tags: [Authentication]
       requestBody:

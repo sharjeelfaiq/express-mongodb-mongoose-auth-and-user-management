@@ -2,24 +2,24 @@ import express from "express";
 
 import {
   authRoutes,
-  userRoutes,
   emailRoutes,
   otpRoutes,
+  userRoutes,
+  healthRoutes,
+  twilioRoutes,
 } from "#modules/index.js";
 import { verifyAuthToken } from "#middleware/index.js";
 
-const rootRouter = express.Router();
-const apiRouter = express.Router();
+const appRouter = express.Router();
+const v1Router = express.Router();
 
-rootRouter.get("/", (_, res) => {
-  res.json({ message: "Server is working..." });
-});
+appRouter.use("/api/v1", v1Router);
+appRouter.use("/health", healthRoutes);
 
-rootRouter.use("/api", apiRouter);
+v1Router.use("/auth", authRoutes);
+v1Router.use("/email", emailRoutes);
+v1Router.use("/otp", otpRoutes);
+v1Router.use("/users", verifyAuthToken, userRoutes);
+v1Router.use("/twilio", twilioRoutes);
 
-apiRouter.use("/auth", authRoutes);
-apiRouter.use("/email", emailRoutes);
-apiRouter.use("/otp", otpRoutes);
-apiRouter.use("/users", verifyAuthToken, userRoutes);
-
-export default rootRouter;
+export default appRouter;

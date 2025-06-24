@@ -2,18 +2,18 @@ import { OtpModel } from "#models/index.js";
 
 export const otp = {
   save: {
-    otp: async ({ otpHash, userId, expiresAt }) => {
+    otp: async ({ otpHash, id, expiresAt }) => {
       return await OtpModel.create({
         otpHash,
-        userId,
+        id,
         expiresAt,
       });
     },
   },
 
   read: {
-    otp: async (userId) => {
-      return await OtpModel.find({ userId });
+    otp: async (id) => {
+      return await OtpModel.find({ id }).sort({ createdAt: -1 }).limit(1);
     },
   },
 };
