@@ -5,7 +5,7 @@ import { tokenUtils, sendEmail } from "#utils/index.js";
 import { dataAccess } from "#dataAccess/index.js";
 import { backendUrl } from "#constants/index.js";
 
-const { save, read, update } = dataAccess;
+const { write, read, update } = dataAccess;
 
 export const authServices = {
   signUp: async (params) => {

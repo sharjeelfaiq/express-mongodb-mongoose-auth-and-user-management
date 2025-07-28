@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { generateOTP, sendEmail } from "#utils/index.js";
 import { dataAccess } from "#dataAccess/index.js";
 
-const { save, read } = dataAccess;
+const { write, read } = dataAccess;
 
 export const otpServices = {
   send: async ({ email }) => {
