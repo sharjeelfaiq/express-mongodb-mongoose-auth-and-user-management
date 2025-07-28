@@ -3,6 +3,7 @@ import cors from "cors";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import colors from "colors";
+import helmet from "helmet";
 
 import { logger, swaggerSpec } from "#config/index.js";
 import { isProdEnv } from "#constants/index.js";
@@ -95,6 +96,7 @@ const invalidRouteHandler = (req, res) => {
 
 export const applyGlobalMiddleware = (app, appRouter) => {
   app.use(morgan("dev"));
+  app.use(helmet());
   app.use(cors(corsOptions));
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
