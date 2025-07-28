@@ -22,9 +22,12 @@
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
     "colors": "^1.4.0",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "http-errors": "^2.0.0",
     "joi": "^17.13.3",
@@ -37,7 +40,8 @@
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "xss-clean": "^0.1.4"
   },
   "imports": {
     "#config/*": "./src/config/*",
