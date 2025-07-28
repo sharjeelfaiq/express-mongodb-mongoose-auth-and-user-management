@@ -9,6 +9,7 @@
     "start": "node src/index.js",
     "format": "prettier --write \"./**/*.{js,jsx,html,yaml,env,md,json,txt}\"",
     "lint": "eslint \"./**/*.js\"",
+    "test": "echo \"No tests yet\" && exit 0",
     "check circularDeps": "npx madge --circular ./src",
     "generateTree": "pwsh generateTree.ps1",
     "generateReadme": "readmeai --repository . --badge-style FLAT-SQUARE --badge-color E92063 --header-style COMPACT --navigation-style ACCORDION --emojis RAINBOW --logo ICE"
