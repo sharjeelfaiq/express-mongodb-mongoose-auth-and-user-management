@@ -5,9 +5,9 @@ const { asyncHandler } = globalUtils;
 
 export const authControllers = {
   signUp: asyncHandler(async (req, res) => {
-    const payload = req.body;
+    const reqBody = req.body;
 
-    await authServices.signUp(payload);
+    await authServices.signUp(reqBody);
 
     res.status(201).json({
       success: true,
@@ -16,9 +16,9 @@ export const authControllers = {
   }),
 
   signIn: asyncHandler(async (req, res) => {
-    const payload = req.body;
+    const reqBody = req.body;
 
-    const data = await authServices.signIn(payload);
+    const data = await authServices.signIn(reqBody);
 
     res.status(200).json({
       success: true,
@@ -40,9 +40,9 @@ export const authControllers = {
   }),
 
   requestPasswordReset: asyncHandler(async (req, res) => {
-    const payload = req.body;
+    const reqBody = req.body;
 
-    await authServices.requestPasswordReset(payload);
+    await authServices.requestPasswordReset(reqBody);
 
     res.status(200).json({
       success: true,
@@ -51,9 +51,9 @@ export const authControllers = {
   }),
 
   updatePassword: asyncHandler(async (req, res) => {
-    const payload = req.body;
+    const reqBody = req.body;
 
-    await authServices.updatePassword(payload);
+    await authServices.updatePassword(reqBody);
 
     res.status(200).json({
       success: true,

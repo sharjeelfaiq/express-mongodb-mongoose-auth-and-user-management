@@ -14,9 +14,9 @@ export const emailControllers = {
   }),
 
   sendVerificationToken: asyncHandler(async (req, res) => {
-    const payload = req.body;
+    const reqBody = req.body;
 
-    await emailServices.sendVerificationToken(payload);
+    await emailServices.sendVerificationToken(reqBody);
 
     res.status(200).json({
       success: true,

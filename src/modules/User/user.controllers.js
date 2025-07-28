@@ -28,10 +28,10 @@ export const userControllers = {
 
   updateById: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const payload = req.body;
+    const reqBody = req.body;
     const files = req.files;
 
-    const data = await userServices.updateById(id, { ...payload, ...files });
+    const data = await userServices.updateById(id, { ...reqBody, ...files });
 
     res.status(200).json({
       success: true,
