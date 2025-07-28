@@ -898,6 +898,14 @@ is protected under the [LICENSE](https://choosealicense.com/licenses) License. F
 
 - Credit `contributors`, `inspiration`, `references`, etc.
 
+---
+
+## Todo
+
+- [ ] ✅ **Write Tests:** Add unit and integration tests for all modules (`auth`, `email`, `otp`, etc.)
+- [ ] 📦 **Dockerization:** Add `Dockerfile` and `docker-compose.yml` for container support
+- [ ] 🧪 **CI Integration:** Set up GitHub Actions for testing, linting, and formatting
+
 <div align="right">
 
 [![][back-to-top]](#top)
