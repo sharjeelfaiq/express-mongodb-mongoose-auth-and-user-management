@@ -902,9 +902,10 @@ is protected under the [LICENSE](https://choosealicense.com/licenses) License. F
 
 ## Todo
 
-- [ ] ✅ **Write Tests:** Add unit and integration tests for all modules (`auth`, `email`, `otp`, etc.)
-- [ ] 📦 **Dockerization:** Add `Dockerfile` and `docker-compose.yml` for container support
-- [ ] 🧪 **CI Integration:** Set up GitHub Actions for testing, linting, and formatting
+- [ ] 🎗️ **Add Typescript support:** Set up GitHub Actions for testing, linting, and formatting
+- [ ] 🎗️ **Write Tests:** Add unit and integration tests for all modules (`auth`, `email`, `otp`, etc.)
+- [ ] 🎗️ **Dockerization:** Add `Dockerfile` and `docker-compose.yml` for container support
+- [ ] 🎗️ **CI Integration:** Set up GitHub Actions for testing, linting, and formatting
 
 <div align="right">
 
