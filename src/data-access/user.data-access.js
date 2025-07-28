@@ -1,5 +1,6 @@
-import createError from "http-errors";
 import mongoose from "mongoose";
+import createError from "http-errors";
+
 import { UserModel } from "#models/index.js";
 
 const { isValidObjectId } = mongoose;
@@ -7,11 +8,11 @@ const { isValidObjectId } = mongoose;
 export const userDataAccess = {
   read: {
     users: () => {
-      return UserModel.find().exec(); // ✅ ensure native Promise
+      return UserModel.find().exec();
     },
 
     userByEmail: (email) => {
-      return UserModel.findOne({ email }).exec(); // ✅ safer
+      return UserModel.findOne({ email }).exec();
     },
 
     userById: (id) => {
@@ -19,7 +20,7 @@ export const userDataAccess = {
         throw createError(400, "Invalid user ID format.");
       }
 
-      return UserModel.findById(id).exec(); // ✅ native Promise
+      return UserModel.findById(id).exec();
     },
   },
 
@@ -42,7 +43,7 @@ export const userDataAccess = {
       return UserModel.findByIdAndUpdate(id, userData, {
         new: true,
         upsert: true,
-      }); // ✅ native Promise already
+      });
     },
   },
 };

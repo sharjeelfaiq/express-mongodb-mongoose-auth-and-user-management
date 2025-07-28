@@ -3,7 +3,7 @@ import { BlacklistedTokenModel } from "#models/index.js";
 export const blacklistedTokenDataAccess = {
   read: {
     blacklistedToken: (token) => {
-      return BlacklistedTokenModel.findOne({ token }).exec(); // ✅ Now returns a real Promise
+      return BlacklistedTokenModel.findOne({ token }).exec();
     },
   },
 

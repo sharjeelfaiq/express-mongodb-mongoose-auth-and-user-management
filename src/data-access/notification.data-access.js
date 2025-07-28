@@ -24,7 +24,7 @@ export const notificationDataAccess = {
         notiId,
         { $set: { read: true } },
         { new: true }, // returns the updated document
-      ).exec(); // ✅ Now returns a real Promise
+      ).exec();
     },
   },
 };

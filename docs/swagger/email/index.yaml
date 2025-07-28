@@ -158,11 +158,6 @@ components:
               value:
                 success: false
                 message: "Token does not contain the user id"
-            expiredToken:
-              summary: Token has expired
-              value:
-                success: false
-                message: "Verification token has expired"
 
     NotFound:
       description: User not found with token information
@@ -199,6 +194,11 @@ components:
               value:
                 success: false
                 message: "Failed to send the welcome email."
+            verificationEmailSendFailed:
+              summary: Verification notification email failed
+              value:
+                success: false
+                message: "Failed to send the verification email."
 
 paths:
   /api/v1/email/check-verification-token:
@@ -213,7 +213,8 @@ paths:
         1. Decodes and validates the JWT verification token from query parameter
         2. Extracts `id` from token payload
         3. Updates user's `isEmailVerified` status to `true`
-        4. Returns HTML verification success page
+        4. Sends verification notification email
+        5. Returns HTML verification success page
 
         ## Token Requirements
         - Valid JWT format signed with system secret
@@ -246,7 +247,7 @@ paths:
         ## Process Flow
         1. Validates that a user exists with the provided email
         2. Generates JWT verification token containing user ID (10 minute expiration)
-        3. Sends HTML verification email via Nodemailer
+        3. Sends HTML verification email via Nodemailer with subject "Welcome - Verify your email"
         4. Returns JSON success response
 
         ## Error Handling
@@ -255,7 +256,7 @@ paths:
 
         ## Email Template
         Uses HTML template from `views/verification-email/index.html` with dynamic 
-        token and backend URL substitution.
+        token substitution.
       operationId: send-verification-token
       requestBody:
         required: true
@@ -275,23 +276,6 @@ paths:
                     example:
                       success: true
                       message: "Verification email sent successfully"
-        400:
-          description: Invalid request data
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                missingEmail:
-                  summary: Email field not provided
-                  value:
-                    success: false
-                    message: "Email is required"
-                invalidEmail:
-                  summary: Invalid email format
-                  value:
-                    success: false
-                    message: "Please provide a valid email address"
         404:
           $ref: "#/components/responses/NotFound"
         500:

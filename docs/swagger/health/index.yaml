@@ -6,15 +6,14 @@ info:
     System health monitoring and status reporting API for application infrastructure monitoring.
 
     **Health Status Levels:**
-    - `healthy`: All systems operational
-    - `degraded`: System operational with minor issues
-    - `unhealthy`: System experiencing critical problems
+    - `healthy`: All systems operational (database connected, memory normal)
+    - `degraded`: System operational with issues (database error or high memory)
 
     **Monitoring Components:**
     - Database connectivity and response time
-    - Memory usage and system resources
-    - External service configurations
-    - Environment-specific diagnostics
+    - Memory usage monitoring (threshold: 500MB)
+    - Configuration validation for external services
+    - Environment and system diagnostics
 
     **Use Cases:**
     - Load balancer health checks
@@ -32,7 +31,7 @@ info:
 servers:
   - url: https://api.yourapp.com
     description: Production server
-  - url: https://romulus-backend.onrender.com
+  - url: https://romulus-backend-firy.onrender.com
     description: Staging server
   - url: http://localhost:5000
     description: Development server
@@ -48,121 +47,86 @@ components:
     # ================================
     HealthStatus:
       type: string
-      enum: [healthy, degraded, unhealthy]
+      enum: [healthy, degraded]
       description: |
         Overall system health status:
-        - `healthy`: All systems operational
-        - `degraded`: Minor issues present but functional
-        - `unhealthy`: Critical problems affecting service
+        - `healthy`: Database connected and memory usage normal
+        - `degraded`: Database error or high memory usage
       example: healthy
 
     DatabaseStatus:
       type: string
-      enum: [healthy, slow, disconnected]
+      enum: [healthy, disconnected, error]
       description: |
         Database connection status:
-        - `healthy`: Connected with good response time (<1000ms)
-        - `slow`: Connected but slow response time (≥1000ms)
-        - `disconnected`: No database connection
+        - `healthy`: Connected with successful ping
+        - `disconnected`: No active database connection
+        - `error`: Database ping failed
       example: healthy
+
+    MemoryStatus:
+      type: string
+      enum: [normal, high]
+      description: |
+        Memory usage status:
+        - `normal`: Memory usage under 500MB
+        - `high`: Memory usage over 500MB threshold
+      example: normal
 
     Environment:
       type: string
-      enum: [development, staging, production, test]
+      enum: [Production, Development]
       description: Current deployment environment
-      example: development
+      example: Development
 
     # ================================
-    # HEALTH DATA SCHEMAS
+    # BASIC HEALTH DATA SCHEMAS
+    # ================================
+    BasicHealthData:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          $ref: "#/components/schemas/HealthStatus"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp in ISO 8601 format
+          example: "2024-01-15T10:30:00.000Z"
+
+    # ================================
+    # DETAILED HEALTH DATA SCHEMAS
     # ================================
     DatabaseHealth:
       type: object
       required:
         - status
+        - responseTime
       properties:
         status:
           $ref: "#/components/schemas/DatabaseStatus"
         responseTime:
           type: string
           nullable: true
-          description: Database ping response time in milliseconds
+          description: Database ping response time in milliseconds (null if disconnected/error)
           example: "45ms"
           pattern: "^\\d+ms$"
 
-    SystemHealth:
+    MemoryHealth:
       type: object
       required:
-        - environment
-        - uptime
-        - memory
+        - usage
+        - status
       properties:
-        environment:
-          $ref: "#/components/schemas/Environment"
-        uptime:
-          type: string
-          description: System uptime in seconds
-          example: "3600s"
-          pattern: "^\\d+s$"
-        memory:
+        usage:
           type: string
           description: Current memory usage in megabytes
           example: "256MB"
           pattern: "^\\d+MB$"
-
-    ServicesHealth:
-      type: object
-      required:
-        - cloudinary
-        - email
-      properties:
-        cloudinary:
-          type: boolean
-          description: Cloudinary service configuration status
-          example: true
-        email:
-          type: boolean
-          description: Email service configuration status
-          example: true
-
-    DatabaseConfig:
-      type: object
-      required:
-        - name
-        - host
-      properties:
-        name:
-          type: string
-          description: Database name
-          example: "production_db"
-        host:
-          type: string
-          description: Database host
-          example: "cluster0.mongodb.net"
-
-    ConfigurationHealth:
-      type: object
-      required:
-        - jwt
-        - database
-        - cloudinary
-        - email
-      properties:
-        jwt:
-          type: boolean
-          description: JWT secret key configuration status
-          example: true
-        database:
-          type: boolean
-          description: Database URI configuration status
-          example: true
-        cloudinary:
-          type: boolean
-          description: Cloudinary configuration status
-          example: true
-        email:
-          type: boolean
-          description: Email configuration status
-          example: true
+        status:
+          $ref: "#/components/schemas/MemoryStatus"
 
     UrlsConfig:
       type: object
@@ -173,79 +137,52 @@ components:
         backend:
           type: string
           format: uri
-          description: Backend base URL
+          description: Backend base URL (environment-specific)
           example: "https://api.yourapp.com"
         frontend:
           type: string
           format: uri
-          description: Frontend base URL
+          description: Frontend base URL (environment-specific)
           example: "https://yourapp.com"
 
-    DevelopmentHealth:
+    ConfigurationHealth:
       type: object
       required:
-        - port
-        - nodeVersion
-        - platform
         - database
-        - configuration
-        - urls
+        - jwt
+        - cloudinary
+        - email
       properties:
-        port:
-          type: string
-          description: Application port number
-          example: "5000"
-        nodeVersion:
-          type: string
-          description: Node.js version
-          example: "v18.17.0"
-        platform:
-          type: string
-          description: Operating system platform
-          example: "linux"
         database:
-          $ref: "#/components/schemas/DatabaseConfig"
-        configuration:
-          $ref: "#/components/schemas/ConfigurationHealth"
-        urls:
-          $ref: "#/components/schemas/UrlsConfig"
+          type: boolean
+          description: Database URI configuration status
+          example: true
+        jwt:
+          type: boolean
+          description: JWT secret key configuration status
+          example: true
+        cloudinary:
+          type: boolean
+          description: Cloudinary service configuration status (cloud name, API key, API secret)
+          example: true
+        email:
+          type: boolean
+          description: Email service configuration status (user email and password)
+          example: true
 
-    MonitoringHealth:
-      type: object
-      required:
-        - totalChecks
-        - passing
-        - issues
-        - urls
-      properties:
-        totalChecks:
-          type: integer
-          description: Total number of health checks performed
-          example: 5
-          minimum: 0
-        passing:
-          type: integer
-          description: Number of passing health checks
-          example: 4
-          minimum: 0
-        issues:
-          type: array
-          items:
-            type: string
-          description: List of current health issues
-          example: ["Database slow"]
-        urls:
-          $ref: "#/components/schemas/UrlsConfig"
-
-    HealthData:
+    DetailedHealthData:
       type: object
       required:
         - status
         - timestamp
         - responseTime
         - database
-        - system
-        - services
+        - memory
+        - environment
+        - port
+        - uptime
+        - urls
+        - configured
       properties:
         status:
           $ref: "#/components/schemas/HealthStatus"
@@ -256,23 +193,28 @@ components:
           example: "2024-01-15T10:30:00.000Z"
         responseTime:
           type: string
-          description: Health check response time
+          description: Total health check response time
           example: "15ms"
           pattern: "^\\d+ms$"
         database:
           $ref: "#/components/schemas/DatabaseHealth"
-        system:
-          $ref: "#/components/schemas/SystemHealth"
-        services:
-          $ref: "#/components/schemas/ServicesHealth"
-        development:
-          allOf:
-            - $ref: "#/components/schemas/DevelopmentHealth"
-          description: Development environment details (present in non-production)
-        monitoring:
-          allOf:
-            - $ref: "#/components/schemas/MonitoringHealth"
-          description: Production monitoring information (present in production only)
+        memory:
+          $ref: "#/components/schemas/MemoryHealth"
+        environment:
+          $ref: "#/components/schemas/Environment"
+        port:
+          type: string
+          description: Application port number
+          example: "5000"
+        uptime:
+          type: string
+          description: System uptime in seconds
+          example: "3600s"
+          pattern: "^\\d+s$"
+        urls:
+          $ref: "#/components/schemas/UrlsConfig"
+        configured:
+          $ref: "#/components/schemas/ConfigurationHealth"
 
     # ================================
     # RESPONSE SCHEMAS
@@ -291,7 +233,7 @@ components:
           description: Human-readable response message
           example: "Operation completed successfully"
 
-    HealthResponse:
+    BasicHealthResponse:
       allOf:
         - $ref: "#/components/schemas/BaseResponse"
         - type: object
@@ -299,143 +241,249 @@ components:
             - data
           properties:
             data:
-              $ref: "#/components/schemas/HealthData"
+              $ref: "#/components/schemas/BasicHealthData"
 
-  responses:
+    DetailedHealthResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: "#/components/schemas/DetailedHealthData"
+
     # ================================
-    # SUCCESS RESPONSES
+    # ERROR SCHEMAS
     # ================================
-    HealthySystem:
-      description: All systems operational and healthy
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/HealthResponse"
-          example:
-            success: true
-            message: "All systems operational"
-            data:
-              status: "healthy"
-              timestamp: "2024-01-15T10:30:00.000Z"
-              responseTime: "15ms"
-              database:
-                status: "healthy"
-                responseTime: "45ms"
-              system:
-                environment: "production"
-                uptime: "3600s"
-                memory: "256MB"
-              services:
-                cloudinary: true
-                email: true
-              monitoring:
-                totalChecks: 5
-                passing: 5
-                issues: []
-                urls:
-                  backend: "https://api.yourapp.com"
-                  frontend: "https://yourapp.com"
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: Error message
+          example: "Authorization token missing or malformed."
 
-    DegradedSystem:
-      description: System operational but with minor issues
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/HealthResponse"
-          example:
-            success: true
-            message: "System operational with issues"
-            data:
-              status: "degraded"
-              timestamp: "2024-01-15T10:30:00.000Z"
-              responseTime: "25ms"
-              database:
-                status: "slow"
-                responseTime: "1200ms"
-              system:
-                environment: "production"
-                uptime: "7200s"
-                memory: "450MB"
-              services:
-                cloudinary: true
-                email: true
-              monitoring:
-                totalChecks: 5
-                passing: 4
-                issues: ["Database slow"]
-                urls:
-                  backend: "https://api.yourapp.com"
-                  frontend: "https://yourapp.com"
-
-    UnhealthySystem:
-      description: System experiencing critical problems
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/HealthResponse"
-          example:
-            success: true
-            message: "System experiencing problems"
-            data:
-              status: "unhealthy"
-              timestamp: "2024-01-15T10:30:00.000Z"
-              responseTime: "50ms"
-              database:
-                status: "disconnected"
-                responseTime: null
-              system:
-                environment: "production"
-                uptime: "1800s"
-                memory: "600MB"
-              services:
-                cloudinary: false
-                email: true
-              monitoring:
-                totalChecks: 5
-                passing: 2
-                issues:
-                  [
-                    "Database disconnected",
-                    "High memory usage",
-                    "Cloudinary not configured",
-                  ]
-                urls:
-                  backend: "https://api.yourapp.com"
-                  frontend: "https://yourapp.com"
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
 
 paths:
-  /health:
+  /health/public:
     get:
-      summary: Check system health
+      summary: Check basic system health (public)
       description: |
-        Performs comprehensive health checks on all system components and returns detailed status information.
+        Performs basic health checks on system components and returns simplified status information.
+        This endpoint is publicly accessible and does not require authentication.
 
         **Health Checks Performed:**
-        - Database connectivity and response time
-        - Memory usage monitoring (threshold: 500MB)
-        - External service configuration validation
-        - System uptime and environment information
+        - Database connectivity using mongoose ping
+        - Memory usage monitoring (500MB threshold)
 
-        **Response Codes:**
-        - `200`: System healthy or degraded but functional
-        - `503`: System unhealthy with critical issues
+        **Health Logic:**
+        - `healthy`: Database status is "healthy" AND memory status is "normal"
+        - `degraded`: Database has errors/disconnected OR memory usage is high
 
-        **Monitoring Integration:**
-        This endpoint is designed for:
-        - Load balancer health checks
-        - Monitoring system integration (Prometheus, DataDog, etc.)
-        - Automated alerting systems
-        - DevOps troubleshooting workflows
-
-        **Environment-Specific Data:**
-        - **Development**: Includes detailed configuration and diagnostic information
-        - **Production**: Includes monitoring metrics and issue tracking
-      operationId: check-system-health
+        **Response:**
+        Always returns HTTP 200 with health status in the response body.
+      operationId: check-basic-system-health
       tags: [Health]
       responses:
         200:
-          $ref: "#/components/responses/HealthySystem"
+          description: Basic system health status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BasicHealthResponse"
+              examples:
+                healthy:
+                  summary: System is healthy
+                  value:
+                    success: true
+                    message: "System operational"
+                    data:
+                      status: "healthy"
+                      timestamp: "2024-01-15T10:30:00.000Z"
+                degraded:
+                  summary: System is degraded
+                  value:
+                    success: true
+                    message: "System degraded"
+                    data:
+                      status: "degraded"
+                      timestamp: "2024-01-15T10:30:00.000Z"
+      x-internal: false
+      x-monitoring: true
+
+  /health/private:
+    get:
+      summary: Check detailed system health (private)
+      description: |
+        Performs comprehensive health checks on all system components and returns detailed status information.
+        This endpoint requires authentication and provides extensive diagnostic information.
+
+        **Health Checks Performed:**
+        - Database connectivity using mongoose ping with response time
+        - Memory usage monitoring (500MB threshold)
+        - Configuration validation for external services
+        - System uptime and environment information
+
+        **Health Logic:**
+        - `healthy`: Database status is "healthy" AND memory status is "normal"
+        - `degraded`: Database has errors/disconnected OR memory usage is high
+
+        **Response Codes:**
+        - `200`: System is healthy (all checks passed)
+        - `503`: System is degraded (at least one check failed)
+
+        **Configuration Checks:**
+        Validates presence of required environment variables:
+        - `DATABASE_URI`: Database connection string
+        - `JWT_SECRET_KEY`: JWT signing secret
+        - `CLOUDINARY_*`: Cloud storage configuration (3 variables)
+        - `USER_EMAIL` & `USER_PASSWORD`: Email service credentials
+
+        **Environment URLs:**
+        Returns appropriate URLs based on NODE_ENV:
+        - **Production**: Uses PROD environment URLs
+        - **Development/Other**: Uses DEV environment URLs
+      operationId: check-detailed-system-health
+      tags: [Health]
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: System is healthy - all checks passed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetailedHealthResponse"
+              example:
+                success: true
+                message: "System operational"
+                data:
+                  status: "healthy"
+                  timestamp: "2024-01-15T10:30:00.000Z"
+                  responseTime: "15ms"
+                  database:
+                    status: "healthy"
+                    responseTime: "45ms"
+                  memory:
+                    usage: "256MB"
+                    status: "normal"
+                  environment: "Production"
+                  port: "5000"
+                  uptime: "3600s"
+                  urls:
+                    backend: "https://api.yourapp.com"
+                    frontend: "https://yourapp.com"
+                  configured:
+                    database: true
+                    jwt: true
+                    cloudinary: true
+                    email: true
+        401:
+          description: Authentication required - missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: "Authorization token missing or malformed."
         503:
-          $ref: "#/components/responses/UnhealthySystem"
+          description: System is degraded - one or more checks failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetailedHealthResponse"
+              examples:
+                highMemory:
+                  summary: High memory usage
+                  value:
+                    success: true
+                    message: "System degraded"
+                    data:
+                      status: "degraded"
+                      timestamp: "2024-01-15T10:30:00.000Z"
+                      responseTime: "25ms"
+                      database:
+                        status: "healthy"
+                        responseTime: "45ms"
+                      memory:
+                        usage: "550MB"
+                        status: "high"
+                      environment: "Production"
+                      port: "5000"
+                      uptime: "7200s"
+                      urls:
+                        backend: "https://api.yourapp.com"
+                        frontend: "https://yourapp.com"
+                      configured:
+                        database: true
+                        jwt: true
+                        cloudinary: true
+                        email: true
+                databaseError:
+                  summary: Database connection error
+                  value:
+                    success: true
+                    message: "System degraded"
+                    data:
+                      status: "degraded"
+                      timestamp: "2024-01-15T10:30:00.000Z"
+                      responseTime: "50ms"
+                      database:
+                        status: "error"
+                        responseTime: null
+                      memory:
+                        usage: "256MB"
+                        status: "normal"
+                      environment: "Production"
+                      port: "5000"
+                      uptime: "1800s"
+                      urls:
+                        backend: "https://api.yourapp.com"
+                        frontend: "https://yourapp.com"
+                      configured:
+                        database: true
+                        jwt: true
+                        cloudinary: false
+                        email: true
+                databaseDisconnected:
+                  summary: Database disconnected
+                  value:
+                    success: true
+                    message: "System degraded"
+                    data:
+                      status: "degraded"
+                      timestamp: "2024-01-15T10:30:00.000Z"
+                      responseTime: "30ms"
+                      database:
+                        status: "disconnected"
+                        responseTime: null
+                      memory:
+                        usage: "300MB"
+                        status: "normal"
+                      environment: "Development"
+                      port: "5000"
+                      uptime: "900s"
+                      urls:
+                        backend: "http://localhost:5000"
+                        frontend: "http://localhost:3000"
+                      configured:
+                        database: true
+                        jwt: true
+                        cloudinary: true
+                        email: true
       x-internal: false
       x-monitoring: true

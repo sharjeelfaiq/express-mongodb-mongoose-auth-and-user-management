@@ -69,7 +69,7 @@ components:
       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
       minLength: 20
 
-    OtpCode:
+    OTPCode:
       type: string
       description: 6-digit numeric OTP code
       example: "123456"
@@ -85,7 +85,7 @@ components:
 
     ProfilePictureUrl:
       type: string
-      description: Relative URL path to uploaded profile picture
+      description: Relative URL path to uploaded avatar
       example: "/uploads/profile-picture-123.jpg"
       pattern: "^/uploads/[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|gif)$"
 
@@ -160,11 +160,11 @@ components:
           type: boolean
           description: Phone verification status (required for educators)
           example: false
-        profilePicture:
+        avatar:
           allOf:
             - $ref: "#/components/schemas/ProfilePictureUrl"
           nullable: true
-          description: Profile picture URL
+          description: Avatar URL
         createdAt:
           $ref: "#/components/schemas/Timestamp"
         updatedAt:
