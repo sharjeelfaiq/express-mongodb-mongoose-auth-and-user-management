@@ -1,5 +1,4 @@
 import express from "express";
-import { Server as SocketIOServer } from "socket.io";
 import { createServer } from "http";
 
 import { connectDatabase } from "#config/index.js";
@@ -15,34 +14,13 @@ const { asyncHandler } = globalUtils;
 const app = express();
 const httpServer = createServer(app);
 
-let io;
-
-export const getIO = () => {
-  if (!io) throw new Error("Socket.io not initialized");
-  return io;
-};
-
 export const startServer = asyncHandler(async () => {
   await connectDatabase();
   applyGlobalMiddleware(app, appRouter);
 
-  io = new SocketIOServer(httpServer, {
-    cors: {
-      origin: "*",
-    },
-  });
-
-  io.on("connection", (socket) => {
-    logger.info(`✅ Socket connected: ${socket.id}`);
-
-    socket.on("disconnect", () => {
-      logger.info(`❌ Socket disconnected: ${socket.id}`);
-    });
-  });
-
   httpServer.listen(PORT || 5000, () => {
     logger.info(
-      `connected: Server (url: ${isProdEnv ? BACKEND_BASE_URL_PROD : BACKEND_BASE_URL_DEV})`,
+      `connected: Server (url: ${isProdEnv ? BACKEND_BASE_URL_PROD : BACKEND_BASE_URL_DEV})`
     );
   });
 });
