@@ -11,7 +11,9 @@ export const userServices = {
     return users;
   },
 
-  getById: async (id) => {
+  getById: async (pathParams) => {
+    const { id } = pathParams;
+
     const user = await read.userById(id);
 
     if (!user) {
@@ -21,7 +23,10 @@ export const userServices = {
     return user;
   },
 
-  updateById: async (id, data) => {
+  updateById: async (pathParams, reqBody, reqFiles) => {
+    const { id } = pathParams;
+    const data = { ...reqBody, ...reqFiles };
+
     const existingUser = await read.userById(id);
 
     if (!existingUser) {
@@ -37,7 +42,9 @@ export const userServices = {
     return updatedUser;
   },
 
-  deleteById: async (id) => {
+  deleteById: async (pathParams) => {
+    const { id } = pathParams;
+
     const user = await remove.userById(id);
 
     if (!user) {

@@ -5,7 +5,7 @@ const { asyncHandler } = globalUtils;
 
 export const authControllers = {
   signUp: asyncHandler(async (req, res) => {
-    const reqBody = req.body;
+    const { body: reqBody } = req;
 
     await authServices.signUp(reqBody);
 
@@ -16,7 +16,7 @@ export const authControllers = {
   }),
 
   signIn: asyncHandler(async (req, res) => {
-    const reqBody = req.body;
+    const { body: reqBody } = req;
 
     const data = await authServices.signIn(reqBody);
 
@@ -28,10 +28,9 @@ export const authControllers = {
   }),
 
   signOut: asyncHandler(async (req, res) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader ? authHeader.replace("Bearer ", "") : null;
+    const { headers: reqHeaders } = req;
 
-    await authServices.signOut(token);
+    await authServices.signOut(reqHeaders);
 
     res.status(200).json({
       success: true,
@@ -40,7 +39,7 @@ export const authControllers = {
   }),
 
   requestPasswordReset: asyncHandler(async (req, res) => {
-    const reqBody = req.body;
+    const { body: reqBody } = req;
 
     await authServices.requestPasswordReset(reqBody);
 
@@ -51,7 +50,7 @@ export const authControllers = {
   }),
 
   updatePassword: asyncHandler(async (req, res) => {
-    const reqBody = req.body;
+    const { body: reqBody } = req;
 
     await authServices.updatePassword(reqBody);
 

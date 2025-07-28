@@ -8,8 +8,8 @@ import { backendUrl } from "#constants/index.js";
 const { write, read, update } = dataAccess;
 
 export const authServices = {
-  signUp: async (params) => {
-    const { email, role } = params;
+  signUp: async (reqBody) => {
+    const { email, role } = reqBody;
 
     const existingEmail = await read.userByEmail(email);
 
@@ -23,7 +23,7 @@ export const authServices = {
       });
     }
 
-    const newUser = await write.user(params);
+    const newUser = await write.user(reqBody);
 
     if (!newUser) {
       throw createError(500, "Failed to create a new user.", {
@@ -36,7 +36,7 @@ export const authServices = {
 
     const verificationToken = tokenUtils.generate(
       { id: newUser._id },
-      "verificationToken",
+      "verificationToken"
     );
 
     if (!verificationToken) {
@@ -70,8 +70,8 @@ export const authServices = {
     }
   },
 
-  signIn: async (params) => {
-    const { email, password } = params;
+  signIn: async (reqBody) => {
+    const { email, password } = reqBody;
 
     const user = await read.userByEmail(email);
 
@@ -91,7 +91,7 @@ export const authServices = {
       // Generate new verification token
       const verificationToken = tokenUtils.generate(
         { id: userId },
-        "verificationToken",
+        "verificationToken"
       );
 
       if (!verificationToken) {
@@ -104,7 +104,7 @@ export const authServices = {
             operation: "tokenUtils.generate",
             id: userId,
             context: { purpose: "email_verification" },
-          },
+          }
         );
       }
 
@@ -138,7 +138,7 @@ export const authServices = {
           id: userId,
           operation: "sign_in",
           context: { action: "verify_email" },
-        },
+        }
       );
     }
 
@@ -156,7 +156,7 @@ export const authServices = {
 
     const accessToken = tokenUtils.generate(
       { id: userId, role: user.role },
-      "accessToken",
+      "accessToken"
     );
 
     if (!accessToken) {
@@ -178,7 +178,11 @@ export const authServices = {
     return data;
   },
 
-  signOut: async (accessToken) => {
+  signOut: async ({ authorization }) => {
+    const accessToken = authorization
+      ? authorization.replace("Bearer ", "")
+      : null;
+
     const existingBlacklistedToken = await read.blacklistedToken(accessToken);
 
     if (existingBlacklistedToken) {
@@ -198,7 +202,7 @@ export const authServices = {
     const blacklistedToken = await write.blacklistedToken(
       accessToken,
       id,
-      expiresAt,
+      expiresAt
     );
 
     if (!blacklistedToken) {
@@ -211,13 +215,13 @@ export const authServices = {
           operation: "write.blacklistedToken",
           id,
           context: { expiresAt: expiresAt.toISOString() },
-        },
+        }
       );
     }
   },
 
-  requestPasswordReset: async (params) => {
-    const { email } = params;
+  requestPasswordReset: async (reqBody) => {
+    const { email } = reqBody;
 
     const existingUser = await read.userByEmail(email);
 
@@ -233,7 +237,7 @@ export const authServices = {
 
     const resetToken = tokenUtils.generate(
       { id: existingUser._id },
-      "passwordResetToken",
+      "passwordResetToken"
     );
 
     if (!resetToken) {
@@ -266,8 +270,8 @@ export const authServices = {
     }
   },
 
-  updatePassword: async (params) => {
-    const { password, resetToken } = params;
+  updatePassword: async (reqBody) => {
+    const { password, resetToken } = reqBody;
 
     const decodedToken = tokenUtils.decode(resetToken);
 

@@ -7,7 +7,9 @@ import { frontendUrl } from "#constants/index.js";
 const { read, update, remove } = dataAccess;
 
 export const emailServices = {
-  checkVerificationToken: async (verificationToken) => {
+  checkVerificationToken: async (queryParams) => {
+    const { verificationToken } = queryParams;
+
     const decodedToken = tokenUtils.decode(verificationToken);
 
     const { id } = decodedToken;
@@ -52,7 +54,9 @@ export const emailServices = {
     return sentEmail;
   },
 
-  sendVerificationToken: async ({ email }) => {
+  sendVerificationToken: async (reqBody) => {
+    const { email } = reqBody;
+
     const user = await read.userByEmail(email);
 
     if (!user) {
@@ -67,7 +71,7 @@ export const emailServices = {
 
     const verificationToken = tokenUtils.generate(
       { id: user._id },
-      "verificationToken",
+      "verificationToken"
     );
 
     if (!verificationToken) {

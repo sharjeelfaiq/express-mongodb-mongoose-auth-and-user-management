@@ -3,7 +3,9 @@ import { dataAccess } from "#dataAccess/index.js";
 const { read, update } = dataAccess;
 
 export const notificationServices = {
-  read: async (userId) => {
+  read: async (pathParams) => {
+    const { userId } = pathParams;
+
     const data = await read.notificationByUserId(userId);
 
     if (!data) {
@@ -13,7 +15,9 @@ export const notificationServices = {
     return data;
   },
 
-  updateById: async (notiId) => {
+  updateById: async (pathParams) => {
+    const { notiId } = pathParams;
+
     const data = await update.notificationById(notiId);
 
     if (!data) {

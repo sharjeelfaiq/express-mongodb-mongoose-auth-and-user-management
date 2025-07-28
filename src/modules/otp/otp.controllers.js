@@ -5,7 +5,7 @@ const { asyncHandler } = globalUtils;
 
 export const otpControllers = {
   send: asyncHandler(async (req, res) => {
-    const reqBody = req.body;
+    const { body: reqBody } = req;
 
     await otpServices.send(reqBody);
 
@@ -13,7 +13,7 @@ export const otpControllers = {
   }),
 
   verify: asyncHandler(async (req, res) => {
-    const reqBody = req.body;
+    const { body: reqBody } = req;
 
     await otpServices.verify(reqBody);
 

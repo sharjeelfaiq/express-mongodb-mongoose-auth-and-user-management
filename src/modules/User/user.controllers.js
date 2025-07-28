@@ -15,9 +15,9 @@ export const userControllers = {
   }),
 
   getById: asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { params: pathParams } = req;
 
-    const data = await userServices.getById(id);
+    const data = await userServices.getById(pathParams);
 
     res.status(200).json({
       success: true,
@@ -27,11 +27,9 @@ export const userControllers = {
   }),
 
   updateById: asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const reqBody = req.body;
-    const files = req.files;
+    const { params: pathParams, body: reqBody, files: reqFiles } = req;
 
-    const data = await userServices.updateById(id, { ...reqBody, ...files });
+    const data = await userServices.updateById(pathParams, reqBody, reqFiles);
 
     res.status(200).json({
       success: true,
@@ -41,9 +39,9 @@ export const userControllers = {
   }),
 
   deleteById: asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { params: pathParams } = req;
 
-    await userServices.deleteById(id);
+    await userServices.deleteById(pathParams);
 
     res.status(204).json({
       success: true,

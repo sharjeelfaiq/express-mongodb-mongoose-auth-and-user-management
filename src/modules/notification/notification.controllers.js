@@ -5,9 +5,9 @@ const { asyncHandler } = globalUtils;
 
 export const notificationControllers = {
   read: asyncHandler(async (req, res) => {
-    const { userId } = req.params;
+    const { params: pathParams } = req;
 
-    const data = await notificationServices.read(userId);
+    const data = await notificationServices.read(pathParams);
 
     res.status(200).json({
       success: true,
@@ -17,9 +17,9 @@ export const notificationControllers = {
   }),
 
   updateById: asyncHandler(async (req, res) => {
-    const { notiId } = req.params;
+    const { params: pathParams } = req;
 
-    const data = await notificationServices.updateById(notiId);
+    const data = await notificationServices.updateById(pathParams);
 
     res.status(200).json({
       success: true,
