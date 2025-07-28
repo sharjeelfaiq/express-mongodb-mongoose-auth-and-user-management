@@ -4,6 +4,7 @@
 <img src="readmeai/assets/logos/ice.svg" width="30%" align="left" style="margin-right: 15px">
 
 # <code>MERN Backend Starter Kit</code>
+
 <em></em>
 
 <!-- BADGES -->
@@ -36,12 +37,12 @@
 - [🔴 Overview](#-overview)
 - [🟠 Features](#-features)
 - [🟡 Project Structure](#-project-structure)
-    - [🟢 Project Index](#-project-index)
+  - [🟢 Project Index](#-project-index)
 - [🔵 Getting Started](#-getting-started)
-    - [🟣 Prerequisites](#-prerequisites)
-    - [⚫ Installation](#-installation)
-    - [⚪ Usage](#-usage)
-    - [🟤 Testing](#-testing)
+  - [🟣 Prerequisites](#-prerequisites)
+  - [⚫ Installation](#-installation)
+  - [⚪ Usage](#-usage)
+  - [🟤 Testing](#-testing)
 - [🌟 Roadmap](#-roadmap)
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
@@ -52,8 +53,6 @@
 ---
 
 ## 🔴 Overview
-
-
 
 ---
 
@@ -165,8 +164,6 @@
 ├── 📄 package.json
 └── 📄 README.md
 ```
-
-
 
 ### 🟢 Project Index
 
@@ -799,59 +796,52 @@ This project requires the following dependencies:
 
 ### ⚫ Installation
 
-Build  from the source and intsall dependencies:
+Build from the source and intsall dependencies:
 
 1. **Clone the repository:**
 
-    ```sh
-    ❯ git clone ../
-    ```
+   ```sh
+   ❯ git clone ../
+   ```
 
 2. **Navigate to the project directory:**
 
-    ```sh
-    ❯ cd 
-    ```
+   ```sh
+   ❯ cd
+   ```
 
 3. **Install the dependencies:**
 
-<!-- SHIELDS BADGE CURRENTLY DISABLED -->
-	<!-- [![npm][npm-shield]][npm-link] -->
-	<!-- REFERENCE LINKS -->
-	<!-- [npm-shield]: https://img.shields.io/badge/npm-CB3837.svg?style={badge_style}&logo=npm&logoColor=white -->
-	<!-- [npm-link]: https://www.npmjs.com/ -->
+   [![npm][npm-shield]][npm-link]
 
-	**Using [npm](https://www.npmjs.com/):**
+   [npm-shield]: https://img.shields.io/badge/npm-CB3837.svg?style={badge_style}&logo=npm&logoColor=white
+   [npm-link]: https://www.npmjs.com/
 
-	```sh
-	❯ npm install
-	```
+   **Using [npm](https://www.npmjs.com/):**
+
+   ```sh
+   ❯ npm install
+   ```
 
 ### ⚪ Usage
 
 Run the project with:
 
 **Using [npm](https://www.npmjs.com/):**
+
 ```sh
 npm start
 ```
 
 ### 🟤 Testing
 
- uses the {__test_framework__} test framework. Run the test suite with:
+uses the {**test_framework**} test framework. Run the test suite with:
 
 **Using [npm](https://www.npmjs.com/):**
+
 ```sh
 npm test
 ```
-
----
-
-## 🌟 Roadmap
-
-- [X] **`Task 1`**: <strike>Implement feature one.</strike>
-- [ ] **`Task 2`**: Implement feature two.
-- [ ] **`Task 3`**: Implement feature three.
 
 ---
 
@@ -900,7 +890,7 @@ npm test
 
 ## 📜 License
 
- is protected under the [LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
+is protected under the [LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
 
 ---
 
@@ -914,8 +904,6 @@ npm test
 
 </div>
 
-
 [back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
-
 
 ---
