@@ -1,6 +1,6 @@
 # Directory Tree: express-mongodb-mongoose-auth-and-user-management
 
-Generated on: 2025-07-28 12:56:05
+Generated on: 2025-07-28 14:43:48
 
 ```
 🗂️ express-mongodb-mongoose-auth-and-user-management
@@ -16,9 +16,6 @@ Generated on: 2025-07-28 12:56:05
 │       │   └── 📄 index.yaml
 │       ├── 🗂️ users
 │       │   └── 📄 index.yaml
-│       ├── 🗂️ verification
-│       │   ├── 📄 email-verification-api.yaml
-│       │   └── 📄 otp-api.yaml
 │       └── 📄 common.yaml
 ├── 🗂️ src
 │   ├── 🗂️ config
@@ -105,3 +102,4 @@ Generated on: 2025-07-28 12:56:05
 ├── 📄 package.json
 └── 📄 README.md
 ```
+
