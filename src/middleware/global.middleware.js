@@ -2,10 +2,20 @@ import morgan from "morgan";
 import cors from "cors";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
-// eslint-disable-next-line no-unused-vars
 import colors from "colors";
 
 import { logger, swaggerSpec } from "#config/index.js";
+import { isProdEnv } from "#constants/index.js";
+
+colors.setTheme({
+  database: ["green", "bold"],
+  server: ["white", "bold"],
+  service: ["brightMagenta", "bold"],
+  error: ["red", "bold"],
+  success: ["brightGreen", "bold"],
+  warning: ["yellow", "bold"],
+  info: ["brightCyan", "bold"],
+});
 
 const corsOptions = {
   origin: true,
@@ -14,7 +24,6 @@ const corsOptions = {
 
 // eslint-disable-next-line no-unused-vars
 const errorHandler = async (err, req, res, next) => {
-  const isProduction = process.env.NODE_ENV === "production";
   const status = err.statusCode || err.status || 500;
   const message = err.message || "Internal Server Error";
   const stack = err.stack || "No stack trace available";
@@ -29,20 +38,16 @@ const errorHandler = async (err, req, res, next) => {
     headers = {},
   } = err;
 
-  const baseResponse = {
+  const response = {
     success: false,
-    message: expose || !isProduction ? message : "Internal Server Error",
+    message: expose || !isProdEnv ? message : "Internal Server Error",
     ...(code && { code }),
     ...(field && { field }),
     ...(operation && expose && { operation }),
-  };
-
-  const logResponse = {
-    success: false,
-    message,
+    // Internal use only (will not be sent to client)
     status,
     ...(userId && { userId }),
-    ...(operation && !expose && { operation }), // Log operation even if not exposed
+    ...(operation && !expose && { operation }),
     ...(context && { context }),
     requestInfo: {
       method: req.method,
@@ -51,16 +56,33 @@ const errorHandler = async (err, req, res, next) => {
       userAgent: req.get("User-Agent"),
       timestamp: new Date().toISOString(),
     },
-    stack: isProduction ? undefined : stack,
+    ...(isProdEnv ? {} : { stack }),
   };
 
-  Object.keys(headers).length && res.set(headers);
+  if (Object.keys(headers).length) res.set(headers);
 
-  // Log with appropriate level
+  // Log the full response
   const logMethod = status >= 500 ? "error" : status >= 400 ? "warn" : "info";
-  logger[logMethod](JSON.stringify(logResponse, null, 2));
+  logger[logMethod](JSON.stringify(response, null, 2));
 
-  res.status(status).json(baseResponse);
+  // Send only safe fields to client
+  const {
+    success,
+    message: clientMessage,
+    code: clientCode,
+    field: clientField,
+    operation: clientOperation,
+  } = response;
+
+  const result = {
+    success,
+    message: clientMessage,
+    ...(clientCode && { code: clientCode }),
+    ...(clientField && { field: clientField }),
+    ...(clientOperation && { operation: clientOperation }),
+  };
+
+  res.status(status).json(result);
 };
 
 const invalidRouteHandler = (req, res) => {
@@ -71,15 +93,13 @@ const invalidRouteHandler = (req, res) => {
   });
 };
 
-const applyGlobalMiddleware = (app, rootRouter) => {
+export const applyGlobalMiddleware = (app, appRouter) => {
   app.use(morgan("dev"));
   app.use(cors(corsOptions));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  app.use(rootRouter);
+  app.use(appRouter);
   app.use(invalidRouteHandler);
   app.use(errorHandler);
 };
-
-export { applyGlobalMiddleware };

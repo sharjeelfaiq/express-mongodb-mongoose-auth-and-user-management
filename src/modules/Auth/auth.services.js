@@ -1,22 +1,19 @@
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
 
-import {
-  generateToken,
-  decodeToken,
-  sendVerificationEmail,
-  sendWhatsAppOTP,
-} from "#utils/index.js";
+import { tokenUtils, sendEmail } from "#utils/index.js";
 import { dataAccess } from "#dataAccess/index.js";
+import { backendUrl } from "#constants/index.js";
 
-const { save, read, remove, update } = dataAccess;
+const { save, read, update } = dataAccess;
 
 export const authServices = {
-  signUp: async (data) => {
-    const { phone, email, password, role } = data;
+  signUp: async (params) => {
+    const { email, role } = params;
 
-    const existingUser = await read.userByEmail(email);
-    if (existingUser) {
+    const existingEmail = await read.userByEmail(email);
+
+    if (existingEmail) {
       throw createError(400, "A user with this email already exists.", {
         expose: true,
         code: "EMAIL_EXISTS",
@@ -26,39 +23,44 @@ export const authServices = {
       });
     }
 
-    const newUser = await save.user(phone, email, password, role);
+    const newUser = await write.user(params);
+
     if (!newUser) {
       throw createError(500, "Failed to create a new user.", {
         expose: false,
         code: "USER_CREATION_FAILED",
-        operation: "save.user",
+        operation: "write.user",
         context: { email, role },
       });
     }
 
-    const verificationToken = generateToken(newUser._id);
+    const verificationToken = tokenUtils.generate(
+      { id: newUser._id },
+      "verificationToken",
+    );
+
     if (!verificationToken) {
-      await remove.userById(newUser._id);
       throw createError(500, "An error occurred while generating the token.", {
         expose: false,
         code: "TOKEN_GENERATION_FAILED",
-        operation: "generateToken",
+        operation: "Account Verification",
         id: newUser._id,
         context: { purpose: "email_verification" },
       });
     }
 
-    const isEmailSent = await sendVerificationEmail(
+    const sentEmail = await sendEmail("verification-email", {
       email,
+      subject: "Welcome - Verify your email",
+      backendUrl,
       verificationToken,
-      "verify-email"
-    );
-    if (!isEmailSent) {
-      await remove.userById(newUser._id);
+    });
+
+    if (!sentEmail) {
       throw createError(500, "Failed to send the welcome email.", {
         expose: false,
         code: "EMAIL_SEND_FAILED",
-        operation: "sendVerificationEmail",
+        operation: "Sending Verification Email",
         id: newUser._id,
         context: {
           emailType: "verify-email",
@@ -66,33 +68,13 @@ export const authServices = {
         },
       });
     }
-
-    const isWhatsAppOtpSent = await sendWhatsAppOTP(phone);
-    if (!isWhatsAppOtpSent) {
-      await remove.userById(newUser._id);
-      throw createError(500, "Failed to send OTP", {
-        expose: false,
-        code: "TWILIO_OTP_SEND_FAILED",
-        operation: "send_whatsapp_otp",
-        context: {
-          phone,
-          channel: "whatsapp",
-          service: "twilio_verify",
-        },
-      });
-    }
-
-    return {
-      success: true,
-      message:
-        "Account registered successfully. Please verify your email address.",
-    };
   },
 
-  signIn: async (data) => {
-    const { email, password } = data;
+  signIn: async (params) => {
+    const { email, password } = params;
 
     const user = await read.userByEmail(email);
+
     if (!user) {
       throw createError(401, "Invalid credentials.", {
         expose: true,
@@ -103,37 +85,44 @@ export const authServices = {
       });
     }
 
+    const userId = user._id;
+
     if (!user.isEmailVerified) {
-      const verificationToken = generateToken(user._id);
+      // Generate new verification token
+      const verificationToken = tokenUtils.generate(
+        { id: userId },
+        "verificationToken",
+      );
+
       if (!verificationToken) {
-        await remove.userById(user._id);
         throw createError(
           500,
           "An error occurred while generating the token.",
           {
             expose: false,
             code: "TOKEN_GENERATION_FAILED",
-            operation: "generateToken",
-            id: user._id,
+            operation: "tokenUtils.generate",
+            id: userId,
             context: { purpose: "email_verification" },
-          }
+          },
         );
       }
 
-      const isEmailSent = await sendVerificationEmail(
+      // Send verification email
+      const sentEmail = await sendEmail("verification-email", {
         email,
+        subject: "Welcome - Verify your email",
         verificationToken,
-        "verify-email"
-      );
-      if (!isEmailSent) {
-        await remove.userById(user._id);
+      });
+
+      if (!sentEmail) {
         throw createError(500, "Failed to send the verification email.", {
           expose: false,
           code: "EMAIL_SEND_FAILED",
-          operation: "sendVerificationEmail",
-          id: user._id,
+          operation: "sendEmail",
+          id: userId,
           context: {
-            emailType: "verify-email",
+            emailType: "verification-email",
             recipient: email,
           },
         });
@@ -146,14 +135,15 @@ export const authServices = {
         {
           expose: true,
           code: "EMAIL_NOT_VERIFIED",
-          id: user._id,
+          id: userId,
           operation: "sign_in",
           context: { action: "verify_email" },
-        }
+        },
       );
     }
 
     const isPasswordValid = await user.comparePassword(password);
+
     if (!isPasswordValid) {
       throw createError(401, "Invalid credentials.", {
         expose: true,
@@ -164,67 +154,73 @@ export const authServices = {
       });
     }
 
-    const token = generateToken(user._id, user.role);
-    if (!token) {
+    const accessToken = tokenUtils.generate(
+      { id: userId, role: user.role },
+      "accessToken",
+    );
+
+    if (!accessToken) {
       throw createError(500, "Token generation failed.", {
         expose: false,
         code: "TOKEN_GENERATION_FAILED",
-        operation: "generateToken",
-        id: user._id,
+        operation: "tokenUtils.generate",
+        id: userId,
         context: { role: user.role, purpose: "authentication" },
       });
     }
 
-    return {
-      success: true,
-      message: "Signed in successfully.",
-      data: {
-        id: user._id,
-        role: user.role,
-      },
-      token,
+    const data = {
+      id: userId,
+      role: user.role,
+      accessToken,
     };
+
+    return data;
   },
 
-  signOut: async (token) => {
-    const decodedToken = decodeToken(token);
-    if (!decodedToken) {
-      throw createError(401, "The provided token is invalid or expired.", {
+  signOut: async (accessToken) => {
+    const existingBlacklistedToken = await read.blacklistedToken(accessToken);
+
+    if (existingBlacklistedToken) {
+      throw createError(400, "Token is already blacklisted.", {
         expose: true,
-        code: "INVALID_TOKEN",
-        field: "token",
-        operation: "sign_out",
-        headers: { "www-authenticate": "Bearer" },
+        code: "TOKEN_BLACKLISTED",
+        operation: "read.blacklistedToken",
+        context: { accessToken },
       });
     }
 
-    const id = decodedToken.id;
+    const decodedToken = tokenUtils.decode(accessToken);
+    const { id } = decodedToken;
+
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1-hour expiration
-    const blacklistedToken = await save.blacklistedToken(token, expiresAt, id);
+
+    const blacklistedToken = await write.blacklistedToken(
+      accessToken,
+      id,
+      expiresAt,
+    );
+
     if (!blacklistedToken) {
       throw createError(
         500,
-        "An error occurred while blacklisting the token.",
+        "An error occurred while blacklisting the accessToken.",
         {
           expose: false,
           code: "TOKEN_BLACKLIST_FAILED",
-          operation: "save.blacklistedToken",
+          operation: "write.blacklistedToken",
           id,
           context: { expiresAt: expiresAt.toISOString() },
-        }
+        },
       );
     }
-
-    return {
-      success: true,
-      message: "Signed out successfully.",
-    };
   },
 
-  forgetPassword: async (data) => {
-    const { email } = data;
+  requestPasswordReset: async (params) => {
+    const { email } = params;
 
     const existingUser = await read.userByEmail(email);
+
     if (!existingUser) {
       throw createError(404, "User not found", {
         expose: true,
@@ -235,27 +231,32 @@ export const authServices = {
       });
     }
 
-    const resetToken = generateToken(existingUser._id);
+    const resetToken = tokenUtils.generate(
+      { id: existingUser._id },
+      "passwordResetToken",
+    );
+
     if (!resetToken) {
       throw createError(500, "Failed to generate reset token", {
         expose: false,
         code: "TOKEN_GENERATION_FAILED",
-        operation: "generateToken",
+        operation: "tokenUtils.generate",
         id: existingUser._id,
         context: { purpose: "password_reset" },
       });
     }
 
-    const isEmailSent = await sendVerificationEmail(
+    const sentEmail = await sendEmail("reset-password", {
       email,
+      subject: "Reset your password",
       resetToken,
-      "reset-password"
-    );
-    if (!isEmailSent) {
+    });
+
+    if (!sentEmail) {
       throw createError(500, "Failed to send reset password email", {
         expose: false,
         code: "EMAIL_SEND_FAILED",
-        operation: "sendVerificationEmail",
+        operation: "sendEmail",
         id: existingUser._id,
         context: {
           emailType: "reset-password",
@@ -263,35 +264,22 @@ export const authServices = {
         },
       });
     }
-
-    return {
-      success: true,
-      message: "Reset password email sent successfully.",
-    };
   },
 
-  updatePassword: async (data) => {
-    const { password, token } = data;
+  updatePassword: async (params) => {
+    const { password, resetToken } = params;
 
-    const decodedToken = decodeToken(token);
-    if (!decodedToken) {
-      throw createError(400, "Invalid or expired token", {
-        expose: true,
-        code: "INVALID_TOKEN",
-        field: "token",
-        operation: "update_password",
-        context: { purpose: "password_reset" },
-      });
-    }
+    const decodedToken = tokenUtils.decode(resetToken);
 
     const { id } = decodedToken;
 
     const existingUser = await read.userById(id);
+
     if (!existingUser) {
       throw createError(404, "User not found", {
         expose: true,
         code: "USER_NOT_FOUND",
-        field: "id",
+        field: "userId",
         id,
         operation: "update_password",
       });
@@ -303,6 +291,7 @@ export const authServices = {
     const isPasswordUpdated = await update.userById(id, {
       password: hashedPassword,
     });
+
     if (!isPasswordUpdated) {
       throw createError(500, "Password update failed", {
         expose: false,
@@ -312,7 +301,5 @@ export const authServices = {
         context: { field: "password" },
       });
     }
-
-    return { success: true, message: "Password updated successfully." };
   },
 };

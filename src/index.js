@@ -1,4 +1,3 @@
-import { startServer } from "#server/server.js";
-// import "./schedular/cron-job.js";
+import { startServer } from "#server/index.js";
 
 startServer();

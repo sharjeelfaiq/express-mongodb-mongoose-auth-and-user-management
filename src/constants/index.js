@@ -16,10 +16,10 @@ const {
   FRONTEND_BASE_URL_PROD,
 } = env;
 
-const backendUrl =
-  NODE_ENV === "production" ? BACKEND_BASE_URL_PROD : BACKEND_BASE_URL_DEV;
+const isProdEnv = NODE_ENV === "production";
 
-const frontendUrl =
-  NODE_ENV === "production" ? FRONTEND_BASE_URL_PROD : FRONTEND_BASE_URL_DEV;
+const backendUrl = isProdEnv ? BACKEND_BASE_URL_PROD : BACKEND_BASE_URL_DEV;
 
-export { viewsDirectory, backendUrl, frontendUrl };
+const frontendUrl = isProdEnv ? FRONTEND_BASE_URL_PROD : FRONTEND_BASE_URL_DEV;
+
+export { viewsDirectory, backendUrl, frontendUrl, isProdEnv };

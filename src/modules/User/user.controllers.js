@@ -1,34 +1,53 @@
-import { asyncHandler } from "#utils/index.js";
+import { globalUtils } from "#utils/index.js";
 import { userServices } from "./user.services.js";
+
+const { asyncHandler } = globalUtils;
 
 export const userControllers = {
   getAll: asyncHandler(async (_, res) => {
-    const result = await userServices.getAll();
-    res.status(200).json(result);
+    const data = await userServices.getAll();
+
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data,
+    });
   }),
 
   getById: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const result = await userServices.getById(id);
-    res.status(200).json(result);
+
+    const data = await userServices.getById(id);
+
+    res.status(200).json({
+      success: true,
+      message: "User retrieved successfully",
+      data,
+    });
   }),
 
   updateById: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const userData = req.body;
+    const payload = req.body;
+    const files = req.files;
 
-    if (req.files && req.files.profilePicture) {
-      const file = req.files.profilePicture[0];
-      userData.profilePicture = `/uploads/${file.filename}`;
-    }
+    const data = await userServices.updateById(id, { ...payload, ...files });
 
-    const result = await userServices.updateById(id, userData);
-    res.status(200).json(result);
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data,
+    });
   }),
 
   deleteById: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const result = await userServices.deleteById(id);
-    res.status(204).json(result);
+
+    await userServices.deleteById(id);
+
+    res.status(204).json({
+      success: true,
+      message: "User deleted successfully",
+    });
   }),
 };

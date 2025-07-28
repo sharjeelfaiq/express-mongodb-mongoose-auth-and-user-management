@@ -1,29 +1,35 @@
-import jwt from "jsonwebtoken";
 import createError from "http-errors";
+import jwt from "jsonwebtoken";
 
-import { env, logger } from "#config/index.js";
+import { env } from "#config/index.js";
 
-const { JWT_SECRET_KEY, JWT_SHORT_EXPIRY, JWT_LONG_EXPIRY } = env;
+const { JWT_SECRET_KEY } = env;
 
-const generateToken = (id, role, isRemembered = false) => {
-  try {
-    const expiry = isRemembered ? JWT_LONG_EXPIRY : JWT_SHORT_EXPIRY;
-    return jwt.sign({ id, role }, JWT_SECRET_KEY, {
-      expiresIn: expiry,
-    });
-  } catch (error) {
-    logger.error("An error occurred while generating the token", error);
-    throw createError(500, "An error occurred while generating the token");
-  }
-};
+export const tokenUtils = {
+  generate: (payload, tokenType) => {
+    const options = {
+      expiresIn: null,
+      algorithm: "HS256",
+    };
 
-const decodeToken = (token) => {
-  try {
+    switch (tokenType) {
+      case "verificationToken":
+        options.expiresIn = "10m";
+        break;
+      case "accessToken":
+        options.expiresIn = "30h";
+        break;
+      case "passwordResetToken":
+        options.expiresIn = "15m";
+        break;
+      default:
+        throw createError(400, "Invalid token type specified.");
+    }
+
+    return jwt.sign(payload, JWT_SECRET_KEY, options);
+  },
+
+  decode: (token) => {
     return jwt.verify(token, JWT_SECRET_KEY);
-  } catch (error) {
-    logger.error("An error occurred while decoding the token", error);
-    throw createError(401, "Invalid token");
-  }
+  },
 };
-
-export { generateToken, decodeToken };

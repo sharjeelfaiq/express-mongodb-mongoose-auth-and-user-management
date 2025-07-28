@@ -1,1 +1,3 @@
-export * from "./auth.dto.js";
+import { authDto } from "./auth.dto.js";
+
+export { authDto };

@@ -1,13 +1,12 @@
 import nodemailer from "nodemailer";
 
-import { logger, env } from "./index.js";
+import { env } from "#config/env.config.js";
+import { logger } from "#config/logger.config.js";
 
-const { EMAIL_HOST, EMAIL_PORT, USER_EMAIL, USER_PASSWORD, EMAIL_SERVICE } =
-  env;
+const { EMAIL_HOST, EMAIL_PORT, USER_EMAIL, USER_PASSWORD } = env;
 
 const createTransporter = () => {
   const transporter = nodemailer.createTransport({
-    service: EMAIL_SERVICE,
     host: EMAIL_HOST,
     port: EMAIL_PORT,
     secure: false, // Set true for SSL (465), false for TLS (587)
@@ -19,9 +18,11 @@ const createTransporter = () => {
 
   transporter.verify((error) => {
     if (error) {
-      logger.error(`Email server connection error: ${error.message}`.red);
+      logger.error(
+        `Connection Failed: Nodemailer\nerror: ${error.message}`.error,
+      );
     } else {
-      logger.info("Email server is ready to send messages.".brightMagenta);
+      logger.info(`connected: Email Service (email: ${USER_EMAIL})`.service);
     }
   });
 

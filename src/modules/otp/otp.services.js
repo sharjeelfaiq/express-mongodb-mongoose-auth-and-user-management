@@ -1,7 +1,7 @@
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
 
-import { generateOtp, sendOtpEmail } from "#utils/index.js";
+import { generateOTP, sendEmail } from "#utils/index.js";
 import { dataAccess } from "#dataAccess/index.js";
 
 const { save, read } = dataAccess;
@@ -13,21 +13,27 @@ export const otpServices = {
       throw createError(404, "User not found.");
     }
 
-    const { rawOtp, hashedOtp, expiresAt } = await generateOtp();
+    const { rawOTP, hashedOTP, expiresAt } = await generateOTP();
 
-    const isOtpSaved = await save.otp({
-      otpHash: hashedOtp,
+    const isOTPSaved = await write.otp({
+      otpHash: hashedOTP,
       id: existingUser._id,
       expiresAt,
     });
 
-    if (!isOtpSaved) {
+    if (!isOTPSaved) {
       throw createError(500, "Failed to save OTP.");
     }
 
-    await sendOtpEmail(email, rawOtp);
+    const sentEmail = await sendEmail("otp-email", {
+      email,
+      subject: "Here's your OTP",
+      rawOTP,
+    });
 
-    return { success: true, message: "OTP sent successfully" };
+    if (!sentEmail) {
+      throw createError(500, "Failed to send email.");
+    }
   },
 
   verify: async ({ email, otp }) => {
@@ -36,24 +42,22 @@ export const otpServices = {
       throw createError(404, "User not found.");
     }
 
-    const existingOtps = await read.otp(existingUser._id);
+    const existingOTPs = await read.otp(existingUser._id);
 
-    if (!existingOtps || !existingOtps.length) {
+    if (!existingOTPs || !existingOTPs.length) {
       throw createError(400, "Invalid OTP");
     }
 
     const comparisonResults = await Promise.all(
-      existingOtps.map((existingOtp) =>
-        bcrypt.compare(otp, existingOtp.otpHash)
-      )
+      existingOTPs.map((existingOTP) =>
+        bcrypt.compare(otp, existingOTP.otpHash),
+      ),
     );
 
-    const isOtpValid = comparisonResults.some((result) => result === true);
+    const isOTPValid = comparisonResults.some((result) => result === true);
 
-    if (!isOtpValid) {
+    if (!isOTPValid) {
       throw createError(400, "Invalid OTP");
     }
-
-    return { success: true, message: "OTP Verified" };
   },
 };

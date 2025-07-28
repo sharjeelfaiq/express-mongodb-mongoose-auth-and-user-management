@@ -1,81 +1,87 @@
-import fs from "fs";
-import path from "path";
+import { readFile } from "fs/promises";
+import createError from "http-errors";
+import { join } from "path";
 
-import { logger, env, transporter } from "#config/index.js";
-import { viewsDirectory, backendUrl, frontendUrl } from "#constants/index.js";
+import { env, transporter } from "#config/index.js";
+import { viewsDirectory } from "#constants/index.js";
 
 const { USER_EMAIL } = env;
 
-const readEmailTemplate = (folder, filename) => {
-  const filePath = path.join(viewsDirectory, folder, filename);
-  return fs.readFileSync(filePath, "utf-8");
-};
+// Template cache for better performance
+const templateCache = new Map();
 
-export const sendVerificationEmail = async (
-  email,
-  verificationToken,
-  purpose,
-) => {
-  let emailHtml, mailOptions;
+const getEmailTemplate = async (folder, filename) => {
+  const cacheKey = `${folder}/${filename}`;
 
-  switch (purpose) {
-    case "verify-email":
-      emailHtml = readEmailTemplate("verification-email", "index.html")
-        .replace(/\$\{backendUrl\}/g, backendUrl)
-        .replace(/\$\{verificationToken\}/g, verificationToken);
-
-      mailOptions = {
-        from: USER_EMAIL,
-        to: email,
-        subject: "Welcome to Romulus - Verify your email",
-        html: emailHtml,
-      };
-      break;
-    case "reset-password":
-      mailOptions = {
-        from: USER_EMAIL,
-        to: email,
-        subject: "Romulus - Reset your password",
-        html: `<h1>Reset Your Password</h1>
-                <p>Click on the following link to reset your password:</p>
-                <a href="${frontendUrl}/update-password?token=${verificationToken}">${frontendUrl}/update-password?token=${verificationToken}</a>
-                <p>If you didn't request a password reset, please ignore this email.</p>`,
-      };
-      break;
-    default:
-      throw new Error("Invalid email purpose");
+  if (templateCache.has(cacheKey)) {
+    return templateCache.get(cacheKey);
   }
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const filePath = join(viewsDirectory, folder, filename);
+    const template = await readFile(filePath, "utf-8");
 
-  logger.info(`Verification email sent to ${email}`);
-
-  return true;
+    // Cache template for future use
+    templateCache.set(cacheKey, template);
+    return template;
+  } catch (error) {
+    throw new Error(
+      `Failed to read email template: ${cacheKey}. ${error.message}`,
+    );
+  }
 };
 
-export const sendOtpEmail = async (email, otpCode) => {
-  const emailHtml = readEmailTemplate("otp-email", "index.html").replace(
-    /\$\{otpCode\}/g,
-    otpCode,
+const processTemplate = (template, variables) => {
+  return Object.entries(variables).reduce(
+    (processed, [key, value]) =>
+      processed.replace(new RegExp(`\\$\\{${key}\\}`, "g"), value),
+    template,
   );
-
-  const mailOptions = {
-    from: USER_EMAIL,
-    to: email,
-    subject: "Romulus - Password Reset Code",
-    html: emailHtml,
-  };
-
-  await transporter.sendMail(mailOptions);
-
-  logger.info(`OTP email sent to ${email}`);
-
-  return true;
 };
 
-export const sendVerificationNotification = () => {
-  return readEmailTemplate("verification-notification", "index.html").replace(
-    /\$\{frontendUrl\}/g,
-    frontendUrl + "/login",
-  );
+const sendMail = async (mailOptions) => {
+  try {
+    return await transporter.sendMail({
+      from: USER_EMAIL,
+      ...mailOptions,
+    });
+  } catch (error) {
+    throw new Error(`Failed to send email: ${error.message}`);
+  }
+};
+
+// options object should contain the following properties:
+// - email
+// - resetToken
+// - verificationToken
+// - frontendUrl
+// - backendUrl
+// - subject
+// - rawOTP
+
+export const sendEmail = async (type, options = {}) => {
+  const { email, subject, ...rest } = options;
+  const template = await getEmailTemplate(type, "index.html");
+  const html = processTemplate(template, rest);
+
+  const supportedTypes = [
+    "otp-email",
+    "verification-email",
+    "verification-notification",
+    "reset-password",
+  ];
+
+  if (!supportedTypes.includes(type)) {
+    throw createError(400, "Invalid email type.");
+  }
+
+  if (type === "verification-notification") {
+    return html;
+  } else {
+    return sendMail({
+      to: email,
+      subject,
+      html,
+    });
+  }
 };

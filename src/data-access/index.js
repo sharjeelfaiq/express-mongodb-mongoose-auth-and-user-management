@@ -1,25 +1,22 @@
-import { blacklistedToken } from "./blacklisted-token.data-access.js";
-import { otp } from "./otp.data-access.js";
-import { user } from "./user.data-access.js";
+import { blacklistedTokenDataAccess } from "./blacklisted-token.data-access.js";
+import { notificationDataAccess } from "./notification.data-access.js";
+import { userDataAccess } from "./user.data-access.js";
 
 export const dataAccess = {
-  save: {
-    ...blacklistedToken.save,
-    ...otp.save,
-    ...user.save,
+  read: {
+    ...blacklistedTokenDataAccess.read,
+    ...notificationDataAccess.read,
+    ...userDataAccess.read,
   },
 
-  read: {
-    ...blacklistedToken.read,
-    ...otp.read,
-    ...user.read,
+  write: {
+    ...blacklistedTokenDataAccess.write,
+    ...notificationDataAccess.write,
+    ...userDataAccess.write,
   },
 
   update: {
-    ...user.update,
-  },
-
-  remove: {
-    ...user.remove,
+    ...notificationDataAccess.update,
+    ...userDataAccess.update,
   },
 };

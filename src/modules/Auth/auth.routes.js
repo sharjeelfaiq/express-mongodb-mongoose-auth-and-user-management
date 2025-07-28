@@ -1,27 +1,22 @@
 import express from "express";
 
-import {
-  signUpDto,
-  signInDto,
-  forgotPasswordDto,
-  updatePasswordDto,
-} from "#dtos/index.js";
-import { validateDto } from "#middleware/index.js";
+import { authDto } from "#dtos/index.js";
+import { validate } from "#middleware/index.js";
 import { authControllers } from "./auth.controllers.js";
 
 export const authRoutes = express.Router();
 
 authRoutes
-  .post("/signup", validateDto(signUpDto), authControllers.signUp)
-  .post("/signin", validateDto(signInDto), authControllers.signIn)
-  .post("/signout", authControllers.signOut)
+  .post("/signup", validate.dto(authDto.signUpDto), authControllers.signUp)
+  .post("/signin", validate.dto(authDto.signInDto), authControllers.signIn)
+  .post("/signout", validate.accessToken, authControllers.signOut)
   .post(
-    "/forgot-password",
-    validateDto(forgotPasswordDto),
-    authControllers.forgetPassword
+    "/request-password-reset",
+    validate.dto(authDto.passwordResetRequestDto),
+    authControllers.requestPasswordReset,
   )
   .patch(
     "/update-password",
-    validateDto(updatePasswordDto),
-    authControllers.updatePassword
+    validate.dto(authDto.passwordUpdateDto),
+    authControllers.updatePassword,
   );

@@ -2,11 +2,9 @@ import multer from "multer";
 
 import { storage } from "#config/index.js";
 
-const knownFields = [
-  { name: "profilePicture", maxCount: 1 },
-];
+const knownFields = [{ name: "avatar", maxCount: 1 }];
 
-// Add expected dynamic branch fields (assuming max 10 branches for safety)
+// Add expected dynamic fields (assuming max 10 for safety)
 // for (let i = 0; i < 10; i++) {
 //   knownFields.push({
 //     name: `branches[${i}][residenceGuidelines]`,
@@ -14,7 +12,7 @@ const knownFields = [
 //   });
 // }
 
-export const uploadMiddleware = multer({
+export const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
 }).fields(knownFields);

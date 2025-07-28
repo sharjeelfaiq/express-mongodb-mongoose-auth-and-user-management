@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Email Verified</title>
+    <title>Password Reset</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -68,12 +68,14 @@
   </head>
   <body>
     <div class="container">
-      <h2>Email Verified</h2>
-      <p>
-        Your email address has been successfully verified. You can now sign in
-        and access your account.
-      </p>
-      <a href="${frontendUrl}" class="button">Go to Sign In</a>
+      <h2>Reset Your Password</h2>
+      <p>Click the button below to reset your password:</p>
+      <a
+        href="${frontendUrl}/update-password?resetToken=${resetToken}"
+        class="button"
+        >Reset Password</a
+      >
+      <p>If you didn’t request this, no further action is needed.</p>
       <div class="footer">
         This is an automated email. Please do not reply.<br />
         &copy; 2025 All rights reserved.

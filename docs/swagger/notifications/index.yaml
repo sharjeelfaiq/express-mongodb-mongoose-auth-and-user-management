@@ -1,0 +1,373 @@
+openapi: 3.0.3
+info:
+  title: Notification API
+  version: v1
+  description: |
+    API for managing user notifications in the system.
+
+    **Features:**
+    - Retrieve user notifications (sorted by latest first)
+    - Mark notifications as read
+    - Simple notification management
+
+    **Authentication & Authorization:**
+    - All endpoints require valid JWT authentication token
+    - No specific role requirements (any authenticated user can access)
+
+    **Business Logic:**
+    - Notifications are user-specific
+    - Read status tracking with boolean flag
+    - Automatic timestamping with creation and update times
+
+  contact:
+    name: API Support
+    email: support@yourapi.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.yourapp.com
+    description: Production server
+  - url: https://romulus-backend-firy.onrender.com
+    description: Staging server
+  - url: http://localhost:5000
+    description: Development server
+
+tags:
+  - name: Notification Management
+    description: User notification retrieval and management operations
+
+components:
+  schemas:
+    # ================================
+    # PRIMITIVE TYPES
+    # ================================
+    ID:
+      type: string
+      description: MongoDB ObjectId identifier
+      example: "60d0fe4f5311236168a109ca"
+      pattern: "^[0-9a-fA-F]{24}$"
+      minLength: 24
+      maxLength: 24
+
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 timestamp with timezone
+      example: "2024-01-15T10:30:00.000Z"
+
+    # ================================
+    # RESPONSE STRUCTURES
+    # ================================
+    BaseResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation completed successfully
+        message:
+          type: string
+          description: Human-readable response message
+          example: "Operation completed successfully"
+
+    ErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            success:
+              example: false
+            message:
+              example: "An error occurred processing your request"
+
+    # ================================
+    # NOTIFICATION SCHEMAS
+    # ================================
+    Notification:
+      type: object
+      required:
+        - _id
+        - user
+        - message
+        - read
+        - createdAt
+        - updatedAt
+      properties:
+        _id:
+          $ref: "#/components/schemas/ID"
+          description: Unique notification identifier
+        user:
+          $ref: "#/components/schemas/ID"
+          description: ID of the user who owns this notification
+        message:
+          type: string
+          description: Notification message content
+          example: "You have a new mission invitation"
+          maxLength: 500
+        read:
+          type: boolean
+          description: Whether the notification has been read by the user
+          default: false
+          example: false
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+          description: When the notification was created
+          example: "2025-01-15T10:30:00.000Z"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+          description: When the notification was last updated
+          example: "2025-01-15T10:35:00.000Z"
+        __v:
+          type: integer
+          description: MongoDB version key
+          example: 0
+
+    # ================================
+    # RESPONSE SCHEMAS
+    # ================================
+    NotificationsListResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Notification"
+              description: Array of user notifications sorted by latest first
+          example:
+            success: true
+            message: "Notifications retrieved successfully"
+            data:
+              - _id: "60d0fe4f5311236168a109ca"
+                user: "60d0fe4f5311236168a109cb"
+                message: "You have a new mission invitation from ABC Organization"
+                read: false
+                createdAt: "2025-01-15T10:30:00.000Z"
+                updatedAt: "2025-01-15T10:30:00.000Z"
+                __v: 0
+              - _id: "60d0fe4f5311236168a109cc"
+                user: "60d0fe4f5311236168a109cb"
+                message: "Your profile has been approved"
+                read: true
+                createdAt: "2025-01-14T09:20:00.000Z"
+                updatedAt: "2025-01-14T15:45:00.000Z"
+                __v: 0
+
+    NotificationUpdateResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/Notification"
+              description: Updated notification object with read status set to true
+          example:
+            success: true
+            message: "Notification updated successfully"
+            data:
+              _id: "60d0fe4f5311236168a109ca"
+              user: "60d0fe4f5311236168a109cb"
+              message: "You have a new mission invitation from ABC Organization"
+              read: true
+              createdAt: "2025-01-15T10:30:00.000Z"
+              updatedAt: "2025-01-15T10:35:00.000Z"
+              __v: 0
+
+  parameters:
+    UserIdPath:
+      in: path
+      name: userId
+      required: true
+      description: MongoDB ObjectId of the user whose notifications to retrieve
+      schema:
+        $ref: "#/components/schemas/ID"
+
+    NotificationIdPath:
+      in: path
+      name: notiId
+      required: true
+      description: MongoDB ObjectId of the notification to update
+      schema:
+        $ref: "#/components/schemas/ID"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from the authentication sign-in endpoint.
+        Include in the Authorization header as: `Bearer <token>`
+
+  responses:
+    # ================================
+    # SUCCESS RESPONSES
+    # ================================
+    NotificationsListSuccess:
+      description: User notifications retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NotificationsListResponse"
+
+    NotificationUpdateSuccess:
+      description: Notification updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NotificationUpdateResponse"
+
+    # ================================
+    # ERROR RESPONSES
+    # ================================
+    BadRequest:
+      description: Invalid request data
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalidId:
+              summary: Invalid ObjectId format
+              value:
+                success: false
+                message: "Invalid ID format"
+
+    Unauthorized:
+      description: Authentication failed or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            missingToken:
+              summary: No authentication token provided
+              value:
+                success: false
+                message: "Authorization token missing or malformed."
+            invalidToken:
+              summary: Token expired or malformed
+              value:
+                success: false
+                message: "Invalid or expired token"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            notificationNotFound:
+              summary: Notification not found
+              value:
+                success: false
+                message: "Notification not found"
+
+    InternalServerError:
+      description: Unexpected server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            serverError:
+              summary: General server error
+              value:
+                success: false
+                message: "An error occurred while processing your request"
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/v1/notifications/{userId}:
+    get:
+      summary: Get user notifications
+      description: |
+        Retrieves all notifications for a specific user.
+
+        **Query Implementation:**
+        - Uses NotificationModel.find({ user: userId })
+        - Results sorted by createdAt in descending order (latest first)
+        - Returns complete notification objects with all fields
+
+        **Response Details:**
+        - Returns array of notification objects
+        - Each notification includes user ID, message, read status, and timestamps
+        - Empty array returned if user has no notifications
+        - Notifications sorted with most recent first
+
+        **Use Cases:**
+        - Display user's notification inbox
+        - Check for unread notifications
+        - Notification history retrieval
+
+        **Authentication:**
+        - Requires valid JWT authentication token
+        - No specific role requirements (any authenticated user can access)
+
+      operationId: get-user-notifications
+      tags: [Notification Management]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserIdPath"
+      responses:
+        200:
+          $ref: "#/components/responses/NotificationsListSuccess"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/notifications/{notiId}:
+    patch:
+      summary: Mark notification as read
+      description: |
+        Updates a notification to mark it as read.
+
+        **Update Implementation:**
+        - Uses NotificationModel.findByIdAndUpdate()
+        - Sets read field to true using $set operator
+        - Returns updated document with new: true option
+        - No request body required - automatically sets read: true
+
+        **Business Logic:**
+        - Only updates the read status (no other fields modified)
+        - Operation is idempotent (safe to call multiple times)
+        - Returns updated notification object in response
+
+        **Use Cases:**
+        - Mark notification as read when user views it
+        - Update notification status in notification management
+        - Track user engagement with notifications
+
+        **Authentication:**
+        - Requires valid JWT authentication token
+        - No specific role requirements (any authenticated user can access)
+
+      operationId: mark-notification-read
+      tags: [Notification Management]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/NotificationIdPath"
+      responses:
+        200:
+          $ref: "#/components/responses/NotificationUpdateSuccess"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"

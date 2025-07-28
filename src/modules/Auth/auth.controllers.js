@@ -1,42 +1,63 @@
-import { asyncHandler } from "#utils/index.js";
+import { globalUtils } from "#utils/index.js";
 import { authServices } from "./auth.services.js";
+
+const { asyncHandler } = globalUtils;
 
 export const authControllers = {
   signUp: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authServices.signUp(payload);
-    res.status(201).json(result);
+
+    await authServices.signUp(payload);
+
+    res.status(201).json({
+      success: true,
+      message: "Signed up successfully. Please verify your email address.",
+    });
   }),
 
   signIn: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authServices.signIn(payload);
 
-    res.status(200).json(result);
+    const data = await authServices.signIn(payload);
+
+    res.status(200).json({
+      success: true,
+      message: "Signed in successfully.",
+      data,
+    });
   }),
 
   signOut: asyncHandler(async (req, res) => {
     const authHeader = req.headers.authorization;
     const token = authHeader ? authHeader.replace("Bearer ", "") : null;
 
-    if (!token) {
-      return res.status(400).json({ message: "No token found" });
-    }
+    await authServices.signOut(token);
 
-    const result = await authServices.signOut(token);
-
-    res.status(200).json(result);
+    res.status(200).json({
+      success: true,
+      message: "Signed out successfully.",
+    });
   }),
 
-  forgetPassword: asyncHandler(async (req, res) => {
+  requestPasswordReset: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authServices.forgetPassword(payload);
-    res.status(200).json(result);
+
+    await authServices.requestPasswordReset(payload);
+
+    res.status(200).json({
+      success: true,
+      message: "Reset password email sent successfully.",
+    });
   }),
 
   updatePassword: asyncHandler(async (req, res) => {
     const payload = req.body;
-    const result = await authServices.updatePassword(payload);
-    res.status(200).json(result);
+
+    await authServices.updatePassword(payload);
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully.",
+    });
   }),
 };

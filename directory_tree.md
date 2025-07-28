@@ -1,64 +1,27 @@
-# Backend
+# Directory Tree: express-mongodb-mongoose-auth-and-user-management
 
-Node.js backend application with Express.js for authentication, user management, and email services.
-
-## Prerequisites
-
-- Node.js (v16+)
-- MongoDB database
-- Environment variables configured
-
-## Installation
-
-```bash
-npm install
-```
-
-## Scripts
-
-- **`npm start`** - Production server
-- **`npm run dev`** - Development server with hot reload
-- **`npm run format`** - Format code with Prettier
-- **`npm run seed`** - Seed database with initial data
-- **`npm run lint`** - Check code quality with ESLint
-
-## Environment Setup
-
-Configure required environment variables before running the application.
-
-## API Documentation
-
-Interactive Swagger documentation available at:
+Generated on: 2025-07-28 12:56:05
 
 ```
-http://localhost:5000/api-docs
-```
-
-## Project Structure
-
-ES6 modules with import mapping:
-
-```
-📁 express-mongodb-mongoose-auth-and-user-management
-├── 📁 docs
-│   └── 📁 swagger
-│       ├── 📁 auth
+🗂️ express-mongodb-mongoose-auth-and-user-management
+├── 🗂️ docs
+│   └── 🗂️ swagger
+│       ├── 🗂️ auth
 │       │   └── 📄 index.yaml
-│       ├── 📁 email
+│       ├── 🗂️ email
 │       │   └── 📄 index.yaml
-│       ├── 📁 health
+│       ├── 🗂️ health
 │       │   └── 📄 index.yaml
-│       ├── 📁 notifications
+│       ├── 🗂️ notifications
 │       │   └── 📄 index.yaml
-│       ├── 📁 users
+│       ├── 🗂️ users
 │       │   └── 📄 index.yaml
-│       ├── 📁 verification
+│       ├── 🗂️ verification
 │       │   ├── 📄 email-verification-api.yaml
 │       │   └── 📄 otp-api.yaml
 │       └── 📄 common.yaml
-├── 📁 public
-├── 📁 src
-│   ├── 📁 config
+├── 🗂️ src
+│   ├── 🗂️ config
 │   │   ├── 📄 cloudinary.config.js
 │   │   ├── 📄 database.config.js
 │   │   ├── 📄 env.config.js
@@ -66,78 +29,74 @@ ES6 modules with import mapping:
 │   │   ├── 📄 logger.config.js
 │   │   ├── 📄 mail.config.js
 │   │   └── 📄 swagger.config.js
-│   ├── 📁 constants
+│   ├── 🗂️ constants
 │   │   └── 📄 index.js
-│   ├── 📁 data-access
+│   ├── 🗂️ data-access
 │   │   ├── 📄 blacklisted-token.data-access.js
 │   │   ├── 📄 index.js
 │   │   ├── 📄 notification.data-access.js
 │   │   ├── 📄 otp.data-access.js
 │   │   └── 📄 user.data-access.js
-│   ├── 📁 dtos
-│   │   ├── 📁 schemas
-│   │   │   ├── 📄 auth-schema.js
-│   │   │   ├── 📄 index.js
-│   │   │   └── 📄 utils.js
+│   ├── 🗂️ dtos
 │   │   ├── 📄 auth.dto.js
 │   │   ├── 📄 index.js
 │   │   └── 📄 validations.js
-│   ├── 📁 middleware
+│   ├── 🗂️ middleware
 │   │   ├── 📄 global.middleware.js
 │   │   ├── 📄 index.js
 │   │   ├── 📄 upload.middleware.js
 │   │   └── 📄 validate.middleware.js
-│   ├── 📁 models
+│   ├── 🗂️ models
 │   │   ├── 📄 blacklisted-token.model.js
 │   │   ├── 📄 index.js
 │   │   ├── 📄 notification.model.js
 │   │   ├── 📄 otp.model.js
 │   │   └── 📄 user.model.js
-│   ├── 📁 modules
-│   │   ├── 📁 auth
+│   ├── 🗂️ modules
+│   │   ├── 🗂️ auth
 │   │   │   ├── 📄 auth.controllers.js
 │   │   │   ├── 📄 auth.routes.js
 │   │   │   └── 📄 auth.services.js
-│   │   ├── 📁 email
+│   │   ├── 🗂️ email
 │   │   │   ├── 📄 email.controllers.js
 │   │   │   ├── 📄 email.routes.js
 │   │   │   └── 📄 email.services.js
-│   │   ├── 📁 health
+│   │   ├── 🗂️ health
 │   │   │   ├── 📄 health.controllers.js
 │   │   │   ├── 📄 health.routes.js
 │   │   │   └── 📄 health.services.js
-│   │   ├── 📁 notification
+│   │   ├── 🗂️ notification
 │   │   │   ├── 📄 notification.controllers.js
 │   │   │   ├── 📄 notification.routes.js
 │   │   │   └── 📄 notification.services.js
-│   │   ├── 📁 otp
+│   │   ├── 🗂️ otp
 │   │   │   ├── 📄 otp.controllers.js
 │   │   │   ├── 📄 otp.routes.js
 │   │   │   └── 📄 otp.services.js
-│   │   ├── 📁 user
+│   │   ├── 🗂️ user
 │   │   │   ├── 📄 user.controllers.js
 │   │   │   ├── 📄 user.routes.js
 │   │   │   └── 📄 user.services.js
 │   │   └── 📄 index.js
-│   ├── 📁 routes
+│   ├── 🗂️ routes
 │   │   └── 📄 index.js
-│   ├── 📁 server
+│   ├── 🗂️ server
 │   │   └── 📄 index.js
-│   ├── 📁 utils
+│   ├── 🗂️ utils
 │   │   ├── 📄 email.utils.js
 │   │   ├── 📄 global.utils.js
 │   │   ├── 📄 index.js
 │   │   ├── 📄 otp.utils.js
 │   │   ├── 📄 token.utils.js
 │   │   └── 📄 username.utils.js
-│   ├── 📁 views
-│   │   ├── 📁 otp-email
+│   ├── 🗂️ views
+│   │   ├── 🗂️ otp-email
 │   │   │   └── 📄 index.html
-│   │   ├── 📁 reset-password
+│   │   ├── 🗂️ reset-password
 │   │   │   └── 📄 index.html
-│   │   ├── 📁 verification-email
+│   │   ├── 🗂️ verification-email
 │   │   │   └── 📄 index.html
-│   │   └── 📁 verification-notification
+│   │   └── 🗂️ verification-notification
 │   │       └── 📄 index.html
 │   └── 📄 index.js
 ├── 📄 eslint.config.js
@@ -146,16 +105,3 @@ ES6 modules with import mapping:
 ├── 📄 package.json
 └── 📄 README.md
 ```
-
-## Core Dependencies
-
-- Express.js (v4.21.2)
-- Mongoose (v8.9.6)
-- JWT (v9.0.2)
-- Bcrypt.js (v2.4.3)
-- Joi (v17.13.3)
-- Nodemailer (v6.10.0)
-
-## Author
-
-**Sharjeel Faiq**
