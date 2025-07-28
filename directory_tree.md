@@ -1,9 +1,9 @@
-# Directory Tree: express-mongodb-mongoose-auth-and-user-management
+# Directory Tree: mern-backend-starter
 
-Generated on: 2025-07-28 14:43:48
+Generated on: 2025-07-28 22:08:37
 
 ```
-🗂️ express-mongodb-mongoose-auth-and-user-management
+🗂️ mern-backend-starter
 ├── 🗂️ docs
 │   └── 🗂️ swagger
 │       ├── 🗂️ auth
@@ -97,6 +97,7 @@ Generated on: 2025-07-28 14:43:48
 │   │       └── 📄 index.html
 │   └── 📄 index.js
 ├── 📄 eslint.config.js
+├── 📄 MERN Backend Starter.postman_collection.json
 ├── 📄 nodemon.json
 ├── 📄 package-lock.json
 ├── 📄 package.json
