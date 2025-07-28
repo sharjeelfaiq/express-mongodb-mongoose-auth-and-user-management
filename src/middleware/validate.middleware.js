@@ -30,7 +30,7 @@ export const validate = {
 
     const accessToken = authHeader.split(" ")[1]; // Get token after 'Bearer '
 
-    const decodedToken = tokenUtils.decode(accessToken);
+    const decodedToken = tokenUtils.verify(accessToken);
 
     req.user = decodedToken;
     next();

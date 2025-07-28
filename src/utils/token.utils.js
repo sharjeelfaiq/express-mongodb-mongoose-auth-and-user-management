@@ -19,6 +19,9 @@ export const tokenUtils = {
       case "accessToken":
         options.expiresIn = "30h";
         break;
+      case "refreshToken":
+        options.expiresIn = "7d";
+        break;
       case "passwordResetToken":
         options.expiresIn = "15m";
         break;
@@ -29,7 +32,11 @@ export const tokenUtils = {
     return jwt.sign(payload, JWT_SECRET_KEY, options);
   },
 
-  decode: (token) => {
+  verify: (token) => {
     return jwt.verify(token, JWT_SECRET_KEY);
+  },
+
+  decode: (token) => {
+    return jwt.decode(token); // Use only for inspection/debug
   },
 };

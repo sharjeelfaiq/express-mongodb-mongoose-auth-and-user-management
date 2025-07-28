@@ -194,7 +194,7 @@ export const authServices = {
       });
     }
 
-    const decodedToken = tokenUtils.decode(accessToken);
+    const decodedToken = tokenUtils.verify(accessToken);
     const { id } = decodedToken;
 
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1-hour expiration
@@ -273,7 +273,7 @@ export const authServices = {
   updatePassword: async (reqBody) => {
     const { password, resetToken } = reqBody;
 
-    const decodedToken = tokenUtils.decode(resetToken);
+    const decodedToken = tokenUtils.verify(resetToken);
 
     const { id } = decodedToken;
 

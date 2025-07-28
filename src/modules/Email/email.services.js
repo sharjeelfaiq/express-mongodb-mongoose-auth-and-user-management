@@ -10,7 +10,7 @@ export const emailServices = {
   checkVerificationToken: async (queryParams) => {
     const { verificationToken } = queryParams;
 
-    const decodedToken = tokenUtils.decode(verificationToken);
+    const decodedToken = tokenUtils.verify(verificationToken);
 
     const { id } = decodedToken;
 
