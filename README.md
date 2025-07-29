@@ -5,7 +5,7 @@
 
 # <code>MERN Backend Starter Kit</code>
 
-<em></em>
+<em>A modular, TypeScript-based Express/MongoDB backend template with authentication, email & notification workflows, Swagger docs, and CI scaffolding.</em>
 
 <!-- BADGES -->
 <!-- local repository, no metadata badges. -->
@@ -38,12 +38,12 @@
 - [🔴 Overview](#-overview)
 - [🟠 Features](#-features)
 - [🟡 Project Structure](#-project-structure)
-	- [🟢 Project Index](#-project-index)
+  - [🟢 Project Index](#-project-index)
 - [🔵 Getting Started](#-getting-started)
-	- [🟣 Prerequisites](#-prerequisites)
-	- [⚫ Installation](#-installation)
-	- [⚪ Usage](#-usage)
-	- [🟤 Testing](#-testing)
+  - [🟣 Prerequisites](#-prerequisites)
+  - [⚫ Installation](#-installation)
+  - [⚪ Usage](#-usage)
+  - [🟤 Testing](#-testing)
 - [🌟 Roadmap](#-roadmap)
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
@@ -55,13 +55,30 @@
 
 ## 🔴 Overview
 
+This **MERN Backend Starter Kit** is a fully-typed, modular Express.js server scaffold built with TypeScript and MongoDB. It provides:
 
+- JWT-based authentication (signup, login, password reset, email/OTP verification)
+- Email and notification modules with templated HTML views
+- API documentation via Swagger YAML files and a ready Postman collection
+- Middleware for validation, error handling, file uploads (Cloudinary)
+- GitHub Actions CI for linting and build checks
+
+> **Note:** Real-time WebSocket support (e.g. via `socket.io`) is **not** included by default, but the project’s modular design makes adding a `socket.io` server and namespaces straightforward.
 
 ---
 
 ## 🟠 Features
 
-<code>❯ REPLACE-ME</code>
+- **Authentication**: Signup/login, JWT issuance & revocation, password reset, email/OTP verification
+- **Email Module**: Send transactional and templated emails (verification, reset password)
+- **Notification Module**: Store and dispatch in-app notifications
+- **Health Checks**: `/health` endpoint for uptime and service diagnostics
+- **Data Access Layer**: Abstracted Mongoose data-access for blacklisted tokens, users, OTPs, notifications
+- **Validation**: Joi-based DTO schemas for request payloads
+- **File Uploads**: Image/file handling via Cloudinary integration
+- **Documentation**: Swagger YAML specs per module + Postman collection included
+- **Tooling**: ESLint, (configure Prettier), nodemon, ts-node dev server
+- **CI**: GitHub Actions pipeline for install, lint, and build
 
 ---
 
@@ -174,8 +191,6 @@
 ├── 📄 README.md
 └── 📄 tsconfig.json
 ```
-
-
 
 ### 🟢 Project Index
 
@@ -868,19 +883,19 @@ This project requires the following dependencies:
 
 ### ⚫ Installation
 
-Build  from the source and intsall dependencies:
+Build from the source and intsall dependencies:
 
 1. **Clone the repository:**
 
-	```sh
-	❯ git clone ../
-	```
+   ```sh
+   ❯ git clone ../
+   ```
 
 2. **Navigate to the project directory:**
 
-	```sh
-	❯ cd 
-	```
+   ```sh
+   ❯ cd
+   ```
 
 3. **Install the dependencies:**
 
@@ -889,26 +904,28 @@ Build  from the source and intsall dependencies:
    [npm-shield]: https://img.shields.io/badge/npm-CB3837.svg?style={badge_style}&logo=npm&logoColor=white
    [npm-link]: https://www.npmjs.com/
 
-	**Using [npm](https://www.npmjs.com/):**
+   **Using [npm](https://www.npmjs.com/):**
 
-	```sh
-	❯ npm install
-	```
+   ```sh
+   ❯ npm install
+   ```
 
 ### ⚪ Usage
 
 Run the project with:
 
 **Using [npm](https://www.npmjs.com/):**
+
 ```sh
 npm start
 ```
 
 ### 🟤 Testing
 
- uses the {__test_framework__} test framework. Run the test suite with:
+uses the {**test_framework**} test framework. Run the test suite with:
 
 **Using [npm](https://www.npmjs.com/):**
+
 ```sh
 npm test
 ```
@@ -917,7 +934,7 @@ npm test
 
 ## 🌟 Roadmap
 
-- [X] **`Task 1`**: <strike>Add Typescript support</strike>
+- [x] **`Task 1`**: <strike>Add Typescript support</strike>
 - [ ] **`Task 2`**: Write Tests
 - [ ] **`Task 3`**: Dockerization
 - [ ] **`Task 4`**: CI Integration
@@ -969,7 +986,7 @@ npm test
 
 ## 📜 License
 
- is protected under the [LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
+is protected under the [LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
 
 ---
 
@@ -983,8 +1000,6 @@ npm test
 
 </div>
 
-
 [back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
-
 
 ---
