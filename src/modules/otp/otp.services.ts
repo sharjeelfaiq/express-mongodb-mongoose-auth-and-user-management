@@ -1,5 +1,6 @@
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
+import express from "express";
 
 import { generateOTP, sendEmail } from "#utils/index.js";
 import { dataAccess } from "#data-access/index.js";
@@ -7,7 +8,7 @@ import { dataAccess } from "#data-access/index.js";
 const { write, read } = dataAccess;
 
 export const otpServices = {
-  send: async (reqBody) => {
+  send: async (reqBody: express.Request["body"]) => {
     const { email } = reqBody;
 
     const existingUser = await read.userByEmail(email);
@@ -19,7 +20,7 @@ export const otpServices = {
 
     const isOTPSaved = await write.otp({
       otpHash: hashedOTP,
-      id: existingUser._id,
+      id: existingUser._id.toString(),
       expiresAt,
     });
 
@@ -38,7 +39,7 @@ export const otpServices = {
     }
   },
 
-  verify: async (reqBody) => {
+  verify: async (reqBody: express.Request["body"]) => {
     const { email, otp } = reqBody;
 
     const existingUser = await read.userByEmail(email);
@@ -46,7 +47,7 @@ export const otpServices = {
       throw createError(404, "User not found.");
     }
 
-    const existingOTPs = await read.otp(existingUser._id);
+    const existingOTPs = await read.otp(existingUser._id.toString());
 
     if (!existingOTPs || !existingOTPs.length) {
       throw createError(400, "Invalid OTP");

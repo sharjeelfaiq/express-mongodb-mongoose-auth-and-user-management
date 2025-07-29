@@ -29,11 +29,9 @@ const OTPSchema = new Schema({
   },
 });
 
-OTPSchema.index({ id: 1, expiresAt: 1 });
-
 OTPSchema.pre("save", function (next) {
   if (this.expiresAt <= this.createdAt) {
-    next(new Error("Expiry date must be in the future"));
+    return next(new Error("Expiry date must be in the future"));
   }
   next();
 });

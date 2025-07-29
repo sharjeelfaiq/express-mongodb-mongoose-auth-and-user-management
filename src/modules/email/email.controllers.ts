@@ -1,10 +1,10 @@
 import { globalUtils } from "#utils/index.js";
 import { emailServices } from "./email.services.js";
 
-const { asyncHandler } = globalUtils;
+const { wrapExpressAsync } = globalUtils;
 
 export const emailControllers = {
-  checkVerificationToken: asyncHandler(async (req, res) => {
+  checkVerificationToken: wrapExpressAsync(async (req, res) => {
     const { query: queryParams } = req;
 
     const emailHtml = await emailServices.checkVerificationToken(queryParams);
@@ -12,7 +12,7 @@ export const emailControllers = {
     res.status(200).send(emailHtml);
   }),
 
-  sendVerificationToken: asyncHandler(async (req, res) => {
+  sendVerificationToken: wrapExpressAsync(async (req, res) => {
     const { body: reqBody } = req;
 
     await emailServices.sendVerificationToken(reqBody);

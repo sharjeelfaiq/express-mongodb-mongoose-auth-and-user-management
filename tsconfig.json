@@ -1,22 +1,54 @@
 {
   "compilerOptions": {
+    "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "bundler",
-    "target": "ES2022",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "#config/*": [
+        "src/config/*"
+      ],
+      "#constants/*": [
+        "src/constants/*"
+      ],
+      "#data-access/*": [
+        "src/data-access/*"
+      ],
+      "#dtos/*": [
+        "src/dtos/*"
+      ],
+      "#middleware/*": [
+        "src/middleware/*"
+      ],
+      "#models/*": [
+        "src/models/*"
+      ],
+      "#modules/*": [
+        "src/modules/*"
+      ],
+      "#routes/*": [
+        "src/routes/*"
+      ],
+      "#server/*": [
+        "src/server/*"
+      ],
+      "#utils/*": [
+        "src/utils/*"
+      ]
+    },
     "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "eslint.config.ts"
+    "dist"
   ]
 }

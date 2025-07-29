@@ -1,10 +1,10 @@
 import { globalUtils } from "#utils/index.js";
 import { notificationServices } from "./notification.services.js";
 
-const { asyncHandler } = globalUtils;
+const { wrapExpressAsync } = globalUtils;
 
 export const notificationControllers = {
-  read: asyncHandler(async (req, res) => {
+  read: wrapExpressAsync(async (req, res) => {
     const { params: pathParams } = req;
 
     const data = await notificationServices.read(pathParams);
@@ -16,7 +16,7 @@ export const notificationControllers = {
     });
   }),
 
-  updateById: asyncHandler(async (req, res) => {
+  updateById: wrapExpressAsync(async (req, res) => {
     const { params: pathParams } = req;
 
     const data = await notificationServices.updateById(pathParams);

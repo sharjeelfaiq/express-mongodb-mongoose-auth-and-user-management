@@ -8,6 +8,7 @@ import rateLimit from "express-rate-limit";
 import compression from "compression";
 import xss from "xss-clean";
 import mongoSanitize from "express-mongo-sanitize";
+import { Application, Router } from "express";
 
 import { logger, swaggerSpec } from "#config/index.js";
 import { isProdEnv } from "#constants/index.js";
@@ -38,33 +39,30 @@ const apiRateLimiter = rateLimit({
   },
 });
 
-// eslint-disable-next-line no-unused-vars
-const errorHandler = async (err, req, res, next) => {
+interface CustomError extends Error {
+  statusCode?: number;
+  status?: number;
+  expose?: boolean;
+  headers?: Record<string, string>;
+  code?: string;
+}
+
+const errorHandler = async (
+  err: CustomError,
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const status = err.statusCode || err.status || 500;
   const message = err.message || "Internal Server Error";
   const stack = err.stack || "No stack trace available";
 
-  const {
-    expose = status < 500,
-    code,
-    field,
-    userId,
-    operation,
-    context,
-    headers = {},
-  } = err;
+  const { expose = status < 500, headers = {} } = err;
 
   const response = {
     success: false,
     message: expose || !isProdEnv ? message : "Internal Server Error",
-    ...(code && { code }),
-    ...(field && { field }),
-    ...(operation && expose && { operation }),
-    // Internal use only (will not be sent to client)
     status,
-    ...(userId && { userId }),
-    ...(operation && !expose && { operation }),
-    ...(context && { context }),
     requestInfo: {
       method: req.method,
       url: req.originalUrl,
@@ -82,26 +80,17 @@ const errorHandler = async (err, req, res, next) => {
   logger[logMethod](JSON.stringify(response, null, 2));
 
   // Send only safe fields to client
-  const {
-    success,
-    message: clientMessage,
-    code: clientCode,
-    field: clientField,
-    operation: clientOperation,
-  } = response;
+  const { success, message: clientMessage } = response;
 
   const result = {
     success,
     message: clientMessage,
-    ...(clientCode && { code: clientCode }),
-    ...(clientField && { field: clientField }),
-    ...(clientOperation && { operation: clientOperation }),
   };
 
   res.status(status).json(result);
 };
 
-const invalidRouteHandler = (req, res) => {
+const invalidRouteHandler = (req: express.Request, res: express.Response) => {
   res.status(404).json({
     success: false,
     message: "Endpoint not found",
@@ -109,7 +98,7 @@ const invalidRouteHandler = (req, res) => {
   });
 };
 
-export const applyGlobalMiddleware = (app, appRouter) => {
+export const applyGlobalMiddleware = (app: Application, appRouter: Router) => {
   app.use(morgan("dev")); // Logs incoming HTTP requests (method, URL, status) for debugging
 
   app.use(helmet()); // Sets secure HTTP headers to protect against common web vulnerabilities

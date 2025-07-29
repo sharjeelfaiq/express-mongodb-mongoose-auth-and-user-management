@@ -1,10 +1,10 @@
 import { globalUtils } from "#utils/index.js";
 import { authServices } from "./auth.services.js";
 
-const { asyncHandler } = globalUtils;
+const { wrapExpressAsync } = globalUtils;
 
 export const authControllers = {
-  signUp: asyncHandler(async (req, res) => {
+  signUp: wrapExpressAsync(async (req, res) => {
     const { body: reqBody } = req;
 
     await authServices.signUp(reqBody);
@@ -15,7 +15,7 @@ export const authControllers = {
     });
   }),
 
-  signIn: asyncHandler(async (req, res) => {
+  signIn: wrapExpressAsync(async (req, res) => {
     const { body: reqBody } = req;
 
     const data = await authServices.signIn(reqBody);
@@ -27,7 +27,7 @@ export const authControllers = {
     });
   }),
 
-  signOut: asyncHandler(async (req, res) => {
+  signOut: wrapExpressAsync(async (req, res) => {
     const { headers: reqHeaders } = req;
 
     await authServices.signOut(reqHeaders);
@@ -38,7 +38,7 @@ export const authControllers = {
     });
   }),
 
-  requestPasswordReset: asyncHandler(async (req, res) => {
+  requestPasswordReset: wrapExpressAsync(async (req, res) => {
     const { body: reqBody } = req;
 
     await authServices.requestPasswordReset(reqBody);
@@ -49,7 +49,7 @@ export const authControllers = {
     });
   }),
 
-  updatePassword: asyncHandler(async (req, res) => {
+  updatePassword: wrapExpressAsync(async (req, res) => {
     const { body: reqBody } = req;
 
     await authServices.updatePassword(reqBody);

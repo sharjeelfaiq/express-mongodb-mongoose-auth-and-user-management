@@ -1,4 +1,5 @@
 import createError from "http-errors";
+import express from "express";
 
 import { dataAccess } from "#data-access/index.js";
 
@@ -11,7 +12,7 @@ export const userServices = {
     return users;
   },
 
-  getById: async (pathParams) => {
+  getById: async (pathParams: express.Request["params"]) => {
     const { id } = pathParams;
 
     const user = await read.userById(id);
@@ -23,7 +24,11 @@ export const userServices = {
     return user;
   },
 
-  updateById: async (pathParams, reqBody, reqFiles) => {
+  updateById: async (
+    pathParams: express.Request["params"],
+    reqBody: express.Request["body"],
+    reqFiles: express.Request["files"]
+  ) => {
     const { id } = pathParams;
     const data = { ...reqBody, ...reqFiles };
 
@@ -42,7 +47,7 @@ export const userServices = {
     return updatedUser;
   },
 
-  deleteById: async (pathParams) => {
+  deleteById: async (pathParams: express.Request["params"]) => {
     const { id } = pathParams;
 
     const user = await remove.userById(id);

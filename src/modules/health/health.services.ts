@@ -24,7 +24,7 @@ export const healthServices = {
 
     try {
       if (mongoose.connection.readyState === 1) {
-        await mongoose.connection.db.admin().ping();
+        await mongoose.connection.db?.admin().ping();
         dbStatus = "healthy";
       }
     } catch (error) {
@@ -58,7 +58,7 @@ export const healthServices = {
     try {
       if (mongoose.connection.readyState === 1) {
         const dbStart = Date.now();
-        await mongoose.connection.db.admin().ping();
+        await mongoose.connection.db?.admin().ping();
         dbResponseTime = Date.now() - dbStart;
         dbStatus = "healthy";
       }

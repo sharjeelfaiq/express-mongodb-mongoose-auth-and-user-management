@@ -10,7 +10,7 @@ const { USER_EMAIL } = env;
 // Template cache for better performance
 const templateCache = new Map();
 
-const getEmailTemplate = async (folder, filename) => {
+const getEmailTemplate = async (folder: string, filename: string) => {
   const cacheKey = `${folder}/${filename}`;
 
   if (templateCache.has(cacheKey)) {
@@ -24,29 +24,40 @@ const getEmailTemplate = async (folder, filename) => {
     // Cache template for future use
     templateCache.set(cacheKey, template);
     return template;
-  } catch (error) {
-    throw new Error(
-      `Failed to read email template: ${cacheKey}. ${error.message}`,
+  } catch (error: unknown) {
+    throw createError(
+      500,
+      `Failed to read email template: ${(error as Error).message}`
     );
   }
 };
 
-const processTemplate = (template, variables) => {
+interface TemplateVariables {
+  [key: string]: string;
+}
+
+const processTemplate = (template: string, variables: TemplateVariables) => {
   return Object.entries(variables).reduce(
     (processed, [key, value]) =>
       processed.replace(new RegExp(`\\$\\{${key}\\}`, "g"), value),
-    template,
+    template
   );
 };
 
-const sendMail = async (mailOptions) => {
+interface MailOptions {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+const sendMail = async (mailOptions: MailOptions) => {
   try {
     return await transporter.sendMail({
       from: USER_EMAIL,
       ...mailOptions,
     });
   } catch (error) {
-    throw new Error(`Failed to send email: ${error.message}`);
+    throw createError(500, `Failed to send email: ${(error as Error).message}`);
   }
 };
 
@@ -59,7 +70,11 @@ const sendMail = async (mailOptions) => {
 // - subject
 // - rawOTP
 
-export const sendEmail = async (type, options = {}) => {
+interface Options {
+  [key: string]: string;
+}
+
+export const sendEmail = async (type: string, options: Options) => {
   const { email, subject, ...rest } = options;
   const template = await getEmailTemplate(type, "index.html");
   const html = processTemplate(template, rest);

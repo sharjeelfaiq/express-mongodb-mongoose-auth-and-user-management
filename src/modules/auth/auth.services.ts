@@ -1,15 +1,15 @@
 import createError from "http-errors";
-import bcrypt from "bcryptjs";
+import express from "express";
 
-import { tokenUtils, sendEmail } from "#utils/index.js";
+import { jwtUtils, sendEmail, bcryptUtils } from "#utils/index.js";
 import { dataAccess } from "#data-access/index.js";
 import { backendUrl } from "#constants/index.js";
 
 const { write, read, update } = dataAccess;
 
 export const authServices = {
-  signUp: async (reqBody) => {
-    const { email, role } = reqBody;
+  signUp: async (reqBody: express.Request["body"]) => {
+    const { email, password, role } = reqBody;
 
     const existingEmail = await read.userByEmail(email);
 
@@ -23,7 +23,13 @@ export const authServices = {
       });
     }
 
-    const newUser = await write.user(reqBody);
+    const hashedPassword = await bcryptUtils.hash(password, { rounds: 12 });
+
+    const newUser = await write.user({
+      email,
+      password: hashedPassword,
+      role,
+    });
 
     if (!newUser) {
       throw createError(500, "Failed to create a new user.", {
@@ -34,7 +40,7 @@ export const authServices = {
       });
     }
 
-    const verificationToken = tokenUtils.generate(
+    const verificationToken = jwtUtils.generate(
       { id: newUser._id },
       "verificationToken"
     );
@@ -43,6 +49,16 @@ export const authServices = {
       throw createError(500, "An error occurred while generating the token.", {
         expose: false,
         code: "TOKEN_GENERATION_FAILED",
+        operation: "Account Verification",
+        id: newUser._id,
+        context: { purpose: "email_verification" },
+      });
+    }
+
+    if (!backendUrl) {
+      throw createError(500, "Backend URL is not defined.", {
+        expose: false,
+        code: "BACKEND_URL_NOT_DEFINED",
         operation: "Account Verification",
         id: newUser._id,
         context: { purpose: "email_verification" },
@@ -70,7 +86,7 @@ export const authServices = {
     }
   },
 
-  signIn: async (reqBody) => {
+  signIn: async (reqBody: express.Request["body"]) => {
     const { email, password } = reqBody;
 
     const user = await read.userByEmail(email);
@@ -89,7 +105,7 @@ export const authServices = {
 
     if (!user.isEmailVerified) {
       // Generate new verification token
-      const verificationToken = tokenUtils.generate(
+      const verificationToken = jwtUtils.generate(
         { id: userId },
         "verificationToken"
       );
@@ -101,7 +117,7 @@ export const authServices = {
           {
             expose: false,
             code: "TOKEN_GENERATION_FAILED",
-            operation: "tokenUtils.generate",
+            operation: "jwtUtils.generate",
             id: userId,
             context: { purpose: "email_verification" },
           }
@@ -142,7 +158,7 @@ export const authServices = {
       );
     }
 
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await bcryptUtils.compare(password, user.password);
 
     if (!isPasswordValid) {
       throw createError(401, "Invalid credentials.", {
@@ -154,7 +170,7 @@ export const authServices = {
       });
     }
 
-    const accessToken = tokenUtils.generate(
+    const accessToken = jwtUtils.generate(
       { id: userId, role: user.role },
       "accessToken"
     );
@@ -163,7 +179,7 @@ export const authServices = {
       throw createError(500, "Token generation failed.", {
         expose: false,
         code: "TOKEN_GENERATION_FAILED",
-        operation: "tokenUtils.generate",
+        operation: "jwtUtils.generate",
         id: userId,
         context: { role: user.role, purpose: "authentication" },
       });
@@ -178,10 +194,12 @@ export const authServices = {
     return data;
   },
 
-  signOut: async ({ authorization }) => {
-    const accessToken = authorization
+  signOut: async (reqHeaders: express.Request["headers"]) => {
+    const { authorization } = reqHeaders;
+
+    const accessToken: string = authorization
       ? authorization.replace("Bearer ", "")
-      : null;
+      : "";
 
     const existingBlacklistedToken = await read.blacklistedToken(accessToken);
 
@@ -194,10 +212,10 @@ export const authServices = {
       });
     }
 
-    const decodedToken = tokenUtils.verify(accessToken);
+    const decodedToken = jwtUtils.verify(accessToken);
     const { id } = decodedToken;
 
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1-hour expiration
+    const expiresAt: number = new Date(Date.now() + 60 * 60 * 1000).getTime(); // 1-hour expiration
 
     const blacklistedToken = await write.blacklistedToken(
       accessToken,
@@ -214,13 +232,13 @@ export const authServices = {
           code: "TOKEN_BLACKLIST_FAILED",
           operation: "write.blacklistedToken",
           id,
-          context: { expiresAt: expiresAt.toISOString() },
+          context: { expiresAt: expiresAt.toString() },
         }
       );
     }
   },
 
-  requestPasswordReset: async (reqBody) => {
+  requestPasswordReset: async (reqBody: express.Request["body"]) => {
     const { email } = reqBody;
 
     const existingUser = await read.userByEmail(email);
@@ -235,7 +253,7 @@ export const authServices = {
       });
     }
 
-    const resetToken = tokenUtils.generate(
+    const resetToken = jwtUtils.generate(
       { id: existingUser._id },
       "passwordResetToken"
     );
@@ -244,7 +262,7 @@ export const authServices = {
       throw createError(500, "Failed to generate reset token", {
         expose: false,
         code: "TOKEN_GENERATION_FAILED",
-        operation: "tokenUtils.generate",
+        operation: "jwtUtils.generate",
         id: existingUser._id,
         context: { purpose: "password_reset" },
       });
@@ -270,10 +288,10 @@ export const authServices = {
     }
   },
 
-  updatePassword: async (reqBody) => {
+  updatePassword: async (reqBody: express.Request["body"]) => {
     const { password, resetToken } = reqBody;
 
-    const decodedToken = tokenUtils.verify(resetToken);
+    const decodedToken = jwtUtils.verify(resetToken);
 
     const { id } = decodedToken;
 
@@ -289,8 +307,7 @@ export const authServices = {
       });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcryptUtils.hash(password, { rounds: 12 });
 
     const isPasswordUpdated = await update.userById(id, {
       password: hashedPassword,

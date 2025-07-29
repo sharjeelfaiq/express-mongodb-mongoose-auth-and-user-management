@@ -1,10 +1,10 @@
 import { globalUtils } from "#utils/index.js";
 import { healthServices } from "./health.services.js";
 
-const { asyncHandler } = globalUtils;
+const { wrapExpressAsync } = globalUtils;
 
 export const healthControllers = {
-  checkHealth: asyncHandler(async (_, res) => {
+  checkHealth: wrapExpressAsync(async (_, res) => {
     const data = await healthServices.checkHealth();
 
     const isHealthy = data.status === "healthy" ? 200 : 503;
@@ -16,7 +16,7 @@ export const healthControllers = {
     });
   }),
 
-  checkDetailedHealth: asyncHandler(async (_, res) => {
+  checkDetailedHealth: wrapExpressAsync(async (_, res) => {
     const data = await healthServices.checkDetailedHealth();
 
     const isHealthy = data.status === "healthy" ? 200 : 503;

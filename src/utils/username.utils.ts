@@ -1,4 +1,4 @@
-export const generateUniqueUsername = (firstName, lastName) => {
+export const generateUniqueUsername = (firstName: string, lastName: string) => {
   // Clean and normalize the inputs
   const cleanFirstName = firstName.trim().toLowerCase();
   const cleanLastName = lastName.trim().toLowerCase();

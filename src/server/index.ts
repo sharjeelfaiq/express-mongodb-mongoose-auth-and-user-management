@@ -9,12 +9,12 @@ import { isProdEnv } from "#constants/index.js";
 import appRouter from "#routes/index.js";
 
 const { PORT, BACKEND_BASE_URL_DEV, BACKEND_BASE_URL_PROD } = env;
-const { asyncHandler } = globalUtils;
+const { wrapGeneralAsync } = globalUtils;
 
 const app = express();
 const httpServer = createServer(app);
 
-export const startServer = asyncHandler(async () => {
+export const startServer = wrapGeneralAsync(async () => {
   await connectDatabase();
   applyGlobalMiddleware(app, appRouter);
 

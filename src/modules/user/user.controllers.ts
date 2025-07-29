@@ -1,10 +1,10 @@
 import { globalUtils } from "#utils/index.js";
 import { userServices } from "./user.services.js";
 
-const { asyncHandler } = globalUtils;
+const { wrapExpressAsync } = globalUtils;
 
 export const userControllers = {
-  getAll: asyncHandler(async (_, res) => {
+  getAll: wrapExpressAsync(async (_, res) => {
     const data = await userServices.getAll();
 
     res.status(200).json({
@@ -14,7 +14,7 @@ export const userControllers = {
     });
   }),
 
-  getById: asyncHandler(async (req, res) => {
+  getById: wrapExpressAsync(async (req, res) => {
     const { params: pathParams } = req;
 
     const data = await userServices.getById(pathParams);
@@ -26,7 +26,7 @@ export const userControllers = {
     });
   }),
 
-  updateById: asyncHandler(async (req, res) => {
+  updateById: wrapExpressAsync(async (req, res) => {
     const { params: pathParams, body: reqBody, files: reqFiles } = req;
 
     const data = await userServices.updateById(pathParams, reqBody, reqFiles);
@@ -38,7 +38,7 @@ export const userControllers = {
     });
   }),
 
-  deleteById: asyncHandler(async (req, res) => {
+  deleteById: wrapExpressAsync(async (req, res) => {
     const { params: pathParams } = req;
 
     await userServices.deleteById(pathParams);

@@ -1,16 +1,28 @@
 import createError from "http-errors";
+import express from "express";
 
-import { tokenUtils, sendEmail } from "#utils/index.js";
+import { jwtUtils, sendEmail } from "#utils/index.js";
 import { dataAccess } from "#data-access/index.js";
 import { frontendUrl } from "#constants/index.js";
 
 const { read, update, remove } = dataAccess;
 
 export const emailServices = {
-  checkVerificationToken: async (queryParams) => {
+  checkVerificationToken: async (queryParams: express.Request["query"]) => {
     const { verificationToken } = queryParams;
 
-    const decodedToken = tokenUtils.verify(verificationToken);
+    // Type guard to ensure verificationToken is a string
+    if (!verificationToken || typeof verificationToken !== "string") {
+      throw createError(
+        400,
+        "Verification token is required and must be a string",
+        {
+          expose: true,
+        }
+      );
+    }
+
+    const decodedToken = jwtUtils.verify(verificationToken);
 
     const { id } = decodedToken;
 
@@ -20,7 +32,7 @@ export const emailServices = {
         code: "INVALID_TOKEN_PAYLOAD",
         field: "verificationToken",
         operation: "email_verification",
-        context: { tokenDecoded: !!decoded },
+        context: { tokenDecoded: !!decodedToken },
       });
     }
 
@@ -35,6 +47,15 @@ export const emailServices = {
         operation: "update.userById",
         userId: id,
         context: { field: "isEmailVerified" },
+      });
+    }
+
+    if (!frontendUrl) {
+      throw createError(500, "Frontend URL is not defined", {
+        expose: false,
+        code: "FRONTEND_URL_NOT_DEFINED",
+        operation: "sendEmail",
+        context: { type: "verification-notification" },
       });
     }
 
@@ -54,7 +75,7 @@ export const emailServices = {
     return sentEmail;
   },
 
-  sendVerificationToken: async (reqBody) => {
+  sendVerificationToken: async (reqBody: express.Request["body"]) => {
     const { email } = reqBody;
 
     const user = await read.userByEmail(email);
@@ -69,17 +90,17 @@ export const emailServices = {
       });
     }
 
-    const verificationToken = tokenUtils.generate(
+    const verificationToken = jwtUtils.generate(
       { id: user._id },
       "verificationToken"
     );
 
     if (!verificationToken) {
-      await remove.userById(user._id);
+      await remove.userById(user._id.toString());
       throw createError(500, "An error occurred while generating the token.", {
         expose: false,
         code: "TOKEN_GENERATION_FAILED",
-        operation: "tokenUtils.generate",
+        operation: "jwtUtils.generate",
         userId: user._id,
         context: { purpose: "email_verification", resend: true },
       });
@@ -92,7 +113,7 @@ export const emailServices = {
     });
 
     if (!sentEmail) {
-      await remove.userById(user._id);
+      await remove.userById(user._id.toString());
       throw createError(500, "Failed to send the welcome email.", {
         expose: false,
         code: "EMAIL_SEND_FAILED",

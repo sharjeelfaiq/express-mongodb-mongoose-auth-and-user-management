@@ -1,10 +1,10 @@
 import { globalUtils } from "#utils/index.js";
 import { otpServices } from "./otp.services.js";
 
-const { asyncHandler } = globalUtils;
+const { wrapExpressAsync } = globalUtils;
 
 export const otpControllers = {
-  send: asyncHandler(async (req, res) => {
+  send: wrapExpressAsync(async (req, res) => {
     const { body: reqBody } = req;
 
     await otpServices.send(reqBody);
@@ -12,7 +12,7 @@ export const otpControllers = {
     res.status(200).json({ success: true, message: "OTP sent successfully" });
   }),
 
-  verify: asyncHandler(async (req, res) => {
+  verify: wrapExpressAsync(async (req, res) => {
     const { body: reqBody } = req;
 
     await otpServices.verify(reqBody);

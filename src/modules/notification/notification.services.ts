@@ -1,9 +1,11 @@
+import express from 'express';
 import { dataAccess } from "#data-access/index.js";
+import createError from "http-errors";
 
 const { read, update } = dataAccess;
 
 export const notificationServices = {
-  read: async (pathParams) => {
+  read: async (pathParams: express.Request["params"]) => {
     const { userId } = pathParams;
 
     const data = await read.notificationByUserId(userId);
@@ -15,7 +17,7 @@ export const notificationServices = {
     return data;
   },
 
-  updateById: async (pathParams) => {
+  updateById: async (pathParams: express.Request["params"]) => {
     const { notiId } = pathParams;
 
     const data = await update.notificationById(notiId);
