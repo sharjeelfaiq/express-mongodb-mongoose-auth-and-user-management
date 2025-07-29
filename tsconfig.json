@@ -1,40 +1,10 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "moduleResolution": "node", // or "node16" or "nodeNext"
-    "target": "ES2022", // Optional but consistent
+    "moduleResolution": "bundler",
+    "target": "ES2022",
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src",
-    "paths": {
-      "#config/*": [
-        "config/*"
-      ],
-      "#constants/*": [
-        "constants/*"
-      ],
-      "#data-access/*": [
-        "data-access/*"
-      ],
-      "#dtos/*": [
-        "dtos/*"
-      ],
-      "#middleware/*": [
-        "middleware/*"
-      ],
-      "#models/*": [
-        "models/*"
-      ],
-      "#routes/*": [
-        "routes/*"
-      ],
-      "#services/*": [
-        "services/*"
-      ],
-      "#utils/*": [
-        "utils/*"
-      ]
-    },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -42,10 +12,11 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "eslint.config.ts"
   ]
 }

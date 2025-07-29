@@ -1,6 +1,6 @@
 import createError from "http-errors";
 
-import { dataAccess } from "#dataAccess/index.js";
+import { dataAccess } from "#data-access/index.js";
 
 const { read, update, remove } = dataAccess;
 

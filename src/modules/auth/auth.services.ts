@@ -2,7 +2,7 @@ import createError from "http-errors";
 import bcrypt from "bcryptjs";
 
 import { tokenUtils, sendEmail } from "#utils/index.js";
-import { dataAccess } from "#dataAccess/index.js";
+import { dataAccess } from "#data-access/index.js";
 import { backendUrl } from "#constants/index.js";
 
 const { write, read, update } = dataAccess;

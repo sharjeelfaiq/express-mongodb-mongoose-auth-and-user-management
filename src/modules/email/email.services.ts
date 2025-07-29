@@ -1,7 +1,7 @@
 import createError from "http-errors";
 
 import { tokenUtils, sendEmail } from "#utils/index.js";
-import { dataAccess } from "#dataAccess/index.js";
+import { dataAccess } from "#data-access/index.js";
 import { frontendUrl } from "#constants/index.js";
 
 const { read, update, remove } = dataAccess;

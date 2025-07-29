@@ -61,7 +61,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]$OutputFile = "directory_tree.md",
     
-    [string[]]$ExcludePatterns = @('^\.\w+', '^node_modules$', '^generateTree.ps1$', '^\.git$', '^bin$', '^obj$', '^packages$', '^\.vs$', '^Debug$', '^Release$'),
+    [string[]]$ExcludePatterns = @('^\.\w+', '^node_modules$', '^dist$', '^generateTree.ps1$', '^\.git$', '^bin$', '^obj$', '^packages$', '^\.vs$', '^Debug$', '^Release$'),
     
     [switch]$ShowProgress,
     [switch]$IncludeStats,

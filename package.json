@@ -55,7 +55,7 @@
   "imports": {
     "#config/*": "./src/config/*",
     "#constants/*": "./src/constants/*",
-    "#dataAccess/*": "./src/data-access/*",
+    "#data-access/*": "./src/data-access/*",
     "#dtos/*": "./src/dtos/*",
     "#middleware/*": "./src/middleware/*",
     "#models/*": "./src/models/*",

@@ -2,7 +2,7 @@ import createError from "http-errors";
 import bcrypt from "bcryptjs";
 
 import { generateOTP, sendEmail } from "#utils/index.js";
-import { dataAccess } from "#dataAccess/index.js";
+import { dataAccess } from "#data-access/index.js";
 
 const { write, read } = dataAccess;
 
