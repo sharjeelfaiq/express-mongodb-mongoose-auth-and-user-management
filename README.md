@@ -14,17 +14,18 @@
 
 <img src="https://img.shields.io/badge/Express-000000.svg?style=flat-square&logo=Express&logoColor=white" alt="Express">
 <img src="https://img.shields.io/badge/JSON-000000.svg?style=flat-square&logo=JSON&logoColor=white" alt="JSON">
-<img src="https://img.shields.io/badge/Socket.io-010101.svg?style=flat-square&logo=socketdotio&logoColor=white" alt="Socket.io">
 <img src="https://img.shields.io/badge/npm-CB3837.svg?style=flat-square&logo=npm&logoColor=white" alt="npm">
 <img src="https://img.shields.io/badge/Mongoose-F04D35.svg?style=flat-square&logo=Mongoose&logoColor=white" alt="Mongoose">
 <img src="https://img.shields.io/badge/Prettier-F7B93E.svg?style=flat-square&logo=Prettier&logoColor=black" alt="Prettier">
-<br>
 <img src="https://img.shields.io/badge/.ENV-ECD53F.svg?style=flat-square&logo=dotenv&logoColor=black" alt=".ENV">
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat-square&logo=JavaScript&logoColor=black" alt="JavaScript">
+<br>
 <img src="https://img.shields.io/badge/Nodemon-76D04B.svg?style=flat-square&logo=Nodemon&logoColor=white" alt="Nodemon">
+<img src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat-square&logo=TypeScript&logoColor=white" alt="TypeScript">
+<img src="https://img.shields.io/badge/tsnode-3178C6.svg?style=flat-square&logo=ts-node&logoColor=white" alt="tsnode">
+<img src="https://img.shields.io/badge/GitHub%20Actions-2088FF.svg?style=flat-square&logo=GitHub-Actions&logoColor=white" alt="GitHub%20Actions">
 <img src="https://img.shields.io/badge/Cloudinary-3448C5.svg?style=flat-square&logo=Cloudinary&logoColor=white" alt="Cloudinary">
 <img src="https://img.shields.io/badge/ESLint-4B32C3.svg?style=flat-square&logo=ESLint&logoColor=white" alt="ESLint">
-<img src="https://img.shields.io/badge/Socket-C93CD7.svg?style=flat-square&logo=Socket&logoColor=white" alt="Socket">
 
 <br clear="left"/>
 
@@ -37,12 +38,12 @@
 - [🔴 Overview](#-overview)
 - [🟠 Features](#-features)
 - [🟡 Project Structure](#-project-structure)
-  - [🟢 Project Index](#-project-index)
+	- [🟢 Project Index](#-project-index)
 - [🔵 Getting Started](#-getting-started)
-  - [🟣 Prerequisites](#-prerequisites)
-  - [⚫ Installation](#-installation)
-  - [⚪ Usage](#-usage)
-  - [🟤 Testing](#-testing)
+	- [🟣 Prerequisites](#-prerequisites)
+	- [⚫ Installation](#-installation)
+	- [⚪ Usage](#-usage)
+	- [🟤 Testing](#-testing)
 - [🌟 Roadmap](#-roadmap)
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
@@ -53,6 +54,8 @@
 ---
 
 ## 🔴 Overview
+
+
 
 ---
 
@@ -167,9 +170,12 @@
 ├── 📄 nodemon.json
 ├── 📄 package-lock.json
 ├── 📄 package.json
+├── 📄 readme-ai.md
 ├── 📄 README.md
 └── 📄 tsconfig.json
 ```
+
+
 
 ### 🟢 Project Index
 
@@ -193,6 +199,10 @@
 					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
+					<td style='padding: 8px;'><b><a href='/eslint.config.ts'>eslint.config.ts</a></b></td>
+					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
+				</tr>
+				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/generateTree.ps1'>generateTree.ps1</a></b></td>
 					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
@@ -212,6 +222,10 @@
 					<td style='padding: 8px;'><b><a href='/package.json'>package.json</a></b></td>
 					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
+				<tr style='border-bottom: 1px solid #eee;'>
+					<td style='padding: 8px;'><b><a href='/tsconfig.json'>tsconfig.json</a></b></td>
+					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
+				</tr>
 			</table>
 		</blockquote>
 	</details>
@@ -229,7 +243,7 @@
 				</tr>
 			</thead>
 				<tr style='border-bottom: 1px solid #eee;'>
-					<td style='padding: 8px;'><b><a href='/src/index.js'>index.js</a></b></td>
+					<td style='padding: 8px;'><b><a href='/src/index.ts'>index.ts</a></b></td>
 					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 			</table>
@@ -247,31 +261,31 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/config/cloudinary.config.js'>cloudinary.config.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/config/cloudinary.config.ts'>cloudinary.config.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/config/database.config.js'>database.config.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/config/database.config.ts'>database.config.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/config/env.config.js'>env.config.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/config/env.config.ts'>env.config.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/config/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/config/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/config/logger.config.js'>logger.config.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/config/logger.config.ts'>logger.config.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/config/mail.config.js'>mail.config.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/config/mail.config.ts'>mail.config.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/config/swagger.config.js'>swagger.config.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/config/swagger.config.ts'>swagger.config.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -291,7 +305,7 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/constants/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/constants/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -311,23 +325,23 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/data-access/blacklisted-token.data-access.js'>blacklisted-token.data-access.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/data-access/blacklisted-token.data-access.ts'>blacklisted-token.data-access.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/data-access/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/data-access/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/data-access/notification.data-access.js'>notification.data-access.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/data-access/notification.data-access.ts'>notification.data-access.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/data-access/otp.data-access.js'>otp.data-access.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/data-access/otp.data-access.ts'>otp.data-access.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/data-access/user.data-access.js'>user.data-access.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/data-access/user.data-access.ts'>user.data-access.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -347,15 +361,15 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/dtos/auth.dto.js'>auth.dto.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/dtos/auth.dto.ts'>auth.dto.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/dtos/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/dtos/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/dtos/validations.js'>validations.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/dtos/validations.ts'>validations.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -375,19 +389,19 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/middleware/global.middleware.js'>global.middleware.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/middleware/global.middleware.ts'>global.middleware.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/middleware/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/middleware/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/middleware/upload.middleware.js'>upload.middleware.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/middleware/upload.middleware.ts'>upload.middleware.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/middleware/validate.middleware.js'>validate.middleware.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/middleware/validate.middleware.ts'>validate.middleware.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -407,23 +421,23 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/models/blacklisted-token.model.js'>blacklisted-token.model.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/models/blacklisted-token.model.ts'>blacklisted-token.model.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/models/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/models/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/models/notification.model.js'>notification.model.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/models/notification.model.ts'>notification.model.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/models/otp.model.js'>otp.model.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/models/otp.model.ts'>otp.model.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/models/user.model.js'>user.model.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/models/user.model.ts'>user.model.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -443,7 +457,7 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/modules/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/modules/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -461,15 +475,15 @@
 								</tr>
 							</thead>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/auth/auth.controllers.js'>auth.controllers.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/auth/auth.controllers.ts'>auth.controllers.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/auth/auth.routes.js'>auth.routes.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/auth/auth.routes.ts'>auth.routes.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/auth/auth.services.js'>auth.services.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/auth/auth.services.ts'>auth.services.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 							</table>
@@ -489,15 +503,15 @@
 								</tr>
 							</thead>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/email/email.controllers.js'>email.controllers.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/email/email.controllers.ts'>email.controllers.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/email/email.routes.js'>email.routes.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/email/email.routes.ts'>email.routes.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/email/email.services.js'>email.services.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/email/email.services.ts'>email.services.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 							</table>
@@ -517,15 +531,15 @@
 								</tr>
 							</thead>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/health/health.controllers.js'>health.controllers.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/health/health.controllers.ts'>health.controllers.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/health/health.routes.js'>health.routes.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/health/health.routes.ts'>health.routes.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/health/health.services.js'>health.services.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/health/health.services.ts'>health.services.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 							</table>
@@ -545,15 +559,15 @@
 								</tr>
 							</thead>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/notification/notification.controllers.js'>notification.controllers.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/notification/notification.controllers.ts'>notification.controllers.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/notification/notification.routes.js'>notification.routes.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/notification/notification.routes.ts'>notification.routes.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/notification/notification.services.js'>notification.services.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/notification/notification.services.ts'>notification.services.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 							</table>
@@ -573,15 +587,15 @@
 								</tr>
 							</thead>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/otp/otp.controllers.js'>otp.controllers.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/otp/otp.controllers.ts'>otp.controllers.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/otp/otp.routes.js'>otp.routes.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/otp/otp.routes.ts'>otp.routes.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/otp/otp.services.js'>otp.services.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/otp/otp.services.ts'>otp.services.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 							</table>
@@ -601,15 +615,15 @@
 								</tr>
 							</thead>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/user/user.controllers.js'>user.controllers.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/user/user.controllers.ts'>user.controllers.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/user/user.routes.js'>user.routes.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/user/user.routes.ts'>user.routes.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 								<tr style='border-bottom: 1px solid #eee;'>
-									<td style='padding: 8px;'><b><a href='/src/modules/user/user.services.js'>user.services.js</a></b></td>
+									<td style='padding: 8px;'><b><a href='/src/modules/user/user.services.ts'>user.services.ts</a></b></td>
 									<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 								</tr>
 							</table>
@@ -631,7 +645,7 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/routes/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/routes/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -651,7 +665,27 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/server/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/server/index.ts'>index.ts</a></b></td>
+							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
+						</tr>
+					</table>
+				</blockquote>
+			</details>
+			<!-- types Submodule -->
+			<details>
+				<summary><b>types</b></summary>
+				<blockquote>
+					<div class='directory-path' style='padding: 8px 0; color: #666;'>
+						<code><b>⦿ src.types</b></code>
+					<table style='width: 100%; border-collapse: collapse;'>
+					<thead>
+						<tr style='background-color: #f8f9fa;'>
+							<th style='width: 30%; text-align: left; padding: 8px;'>File Name</th>
+							<th style='text-align: left; padding: 8px;'>Summary</th>
+						</tr>
+					</thead>
+						<tr style='border-bottom: 1px solid #eee;'>
+							<td style='padding: 8px;'><b><a href='/src/types/xss-clean.d.ts'>xss-clean.d.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -671,27 +705,31 @@
 						</tr>
 					</thead>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/utils/email.utils.js'>email.utils.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/utils/bcrypt.utils.ts'>bcrypt.utils.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/utils/global.utils.js'>global.utils.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/utils/email.utils.ts'>email.utils.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/utils/index.js'>index.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/utils/global.utils.ts'>global.utils.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/utils/otp.utils.js'>otp.utils.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/utils/index.ts'>index.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/utils/token.utils.js'>token.utils.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/utils/jwt.utils.ts'>jwt.utils.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 						<tr style='border-bottom: 1px solid #eee;'>
-							<td style='padding: 8px;'><b><a href='/src/utils/username.utils.js'>username.utils.js</a></b></td>
+							<td style='padding: 8px;'><b><a href='/src/utils/otp.utils.ts'>otp.utils.ts</a></b></td>
+							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
+						</tr>
+						<tr style='border-bottom: 1px solid #eee;'>
+							<td style='padding: 8px;'><b><a href='/src/utils/username.utils.ts'>username.utils.ts</a></b></td>
 							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 						</tr>
 					</table>
@@ -787,6 +825,34 @@
 			</details>
 		</blockquote>
 	</details>
+	<!-- .github Submodule -->
+	<details>
+		<summary><b>.github</b></summary>
+		<blockquote>
+			<div class='directory-path' style='padding: 8px 0; color: #666;'>
+				<code><b>⦿ .github</b></code>
+			<!-- workflows Submodule -->
+			<details>
+				<summary><b>workflows</b></summary>
+				<blockquote>
+					<div class='directory-path' style='padding: 8px 0; color: #666;'>
+						<code><b>⦿ .github.workflows</b></code>
+					<table style='width: 100%; border-collapse: collapse;'>
+					<thead>
+						<tr style='background-color: #f8f9fa;'>
+							<th style='width: 30%; text-align: left; padding: 8px;'>File Name</th>
+							<th style='text-align: left; padding: 8px;'>Summary</th>
+						</tr>
+					</thead>
+						<tr style='border-bottom: 1px solid #eee;'>
+							<td style='padding: 8px;'><b><a href='/.github/workflows/node.js.yml'>node.js.yml</a></b></td>
+							<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
+						</tr>
+					</table>
+				</blockquote>
+			</details>
+		</blockquote>
+	</details>
 </details>
 
 ---
@@ -797,24 +863,24 @@
 
 This project requires the following dependencies:
 
-- **Programming Language:** JavaScript
+- **Programming Language:** TypeScript
 - **Package Manager:** Npm
 
 ### ⚫ Installation
 
-Build from the source and intsall dependencies:
+Build  from the source and intsall dependencies:
 
 1. **Clone the repository:**
 
-   ```sh
-   ❯ git clone ../
-   ```
+	```sh
+	❯ git clone ../
+	```
 
 2. **Navigate to the project directory:**
 
-   ```sh
-   ❯ cd
-   ```
+	```sh
+	❯ cd 
+	```
 
 3. **Install the dependencies:**
 
@@ -823,31 +889,38 @@ Build from the source and intsall dependencies:
    [npm-shield]: https://img.shields.io/badge/npm-CB3837.svg?style={badge_style}&logo=npm&logoColor=white
    [npm-link]: https://www.npmjs.com/
 
-   **Using [npm](https://www.npmjs.com/):**
+	**Using [npm](https://www.npmjs.com/):**
 
-   ```sh
-   ❯ npm install
-   ```
+	```sh
+	❯ npm install
+	```
 
 ### ⚪ Usage
 
 Run the project with:
 
 **Using [npm](https://www.npmjs.com/):**
-
 ```sh
 npm start
 ```
 
 ### 🟤 Testing
 
-uses the {**test_framework**} test framework. Run the test suite with:
+ uses the {__test_framework__} test framework. Run the test suite with:
 
 **Using [npm](https://www.npmjs.com/):**
-
 ```sh
 npm test
 ```
+
+---
+
+## 🌟 Roadmap
+
+- [X] **`Task 1`**: <strike>Add Typescript support</strike>
+- [ ] **`Task 2`**: Write Tests
+- [ ] **`Task 3`**: Dockerization
+- [ ] **`Task 4`**: CI Integration
 
 ---
 
@@ -887,7 +960,7 @@ npm test
 <br>
 <p align="left">
    <a href="https://LOCAL{///}graphs/contributors">
-      <img src="https://contrib.rocks/image?repo=/">
+	  <img src="https://contrib.rocks/image?repo=/">
    </a>
 </p>
 </details>
@@ -896,7 +969,7 @@ npm test
 
 ## 📜 License
 
-is protected under the [LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
+ is protected under the [LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
 
 ---
 
@@ -904,21 +977,14 @@ is protected under the [LICENSE](https://choosealicense.com/licenses) License. F
 
 - Credit `contributors`, `inspiration`, `references`, etc.
 
----
-
-## Todo
-
-- [x] **Add Typescript support:** Set up GitHub Actions for testing, linting, and formatting
-- [ ] 🚧 **Write Tests:** Add unit and integration tests for all modules (`auth`, `email`, `otp`, etc.)
-- [ ] **Dockerization:** Add `Dockerfile` and `docker-compose.yml` for container support
-- [ ] **CI Integration:** Set up GitHub Actions for testing, linting, and formatting
-
 <div align="right">
 
 [![][back-to-top]](#top)
 
 </div>
 
+
 [back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
+
 
 ---

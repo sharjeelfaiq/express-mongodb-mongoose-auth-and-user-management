@@ -1,7 +1,3 @@
-# Directory Tree: mern-backend-starter
-
-Generated on: 2025-07-29 14:41:11
-
 ```
 🗂️ mern-backend-starter
 ├── 🗂️ docs
@@ -105,6 +101,7 @@ Generated on: 2025-07-29 14:41:11
 ├── 📄 nodemon.json
 ├── 📄 package-lock.json
 ├── 📄 package.json
+├── 📄 readme-ai.md
 ├── 📄 README.md
 └── 📄 tsconfig.json
 ```

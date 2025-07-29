@@ -405,32 +405,18 @@ try {
                     
                     # Write header directly to stream
                     if ($OutputFormat -eq 'Markdown') {
-                        $streamWriter.WriteLine("# Directory Tree: $rootName")
-                        $streamWriter.WriteLine("")
-                        $streamWriter.WriteLine("Generated on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')")
-                        $streamWriter.WriteLine("")
                         $streamWriter.WriteLine("``````")
                         $streamWriter.WriteLine("🗂️ $rootName")
                     } else {
-                        $streamWriter.WriteLine("Directory Tree: $rootName")
-                        $streamWriter.WriteLine("Generated on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')")
-                        $streamWriter.WriteLine("")
                         $streamWriter.WriteLine("``````")
                         $streamWriter.WriteLine("[DIR] $rootName")
                     }
                 } else {
                     # Initialize StringBuilder with header
                     if ($OutputFormat -eq 'Markdown') {
-                        $script:StringBuilder.AppendLine("# Directory Tree: $rootName") | Out-Null
-                        $script:StringBuilder.AppendLine("") | Out-Null
-                        $script:StringBuilder.AppendLine("Generated on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')") | Out-Null
-                        $script:StringBuilder.AppendLine("") | Out-Null
                         $script:StringBuilder.AppendLine("``````") | Out-Null
                         $script:StringBuilder.AppendLine("🗂️ $rootName") | Out-Null
                     } else {
-                        $script:StringBuilder.AppendLine("Directory Tree: $rootName") | Out-Null
-                        $script:StringBuilder.AppendLine("Generated on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')") | Out-Null
-                        $script:StringBuilder.AppendLine("") | Out-Null
                         $script:StringBuilder.AppendLine("``````") | Out-Null
                         $script:StringBuilder.AppendLine("[DIR] $rootName") | Out-Null
                     }
