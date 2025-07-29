@@ -141,12 +141,15 @@
 │   │   └── 📄 index.ts
 │   ├── 🗂️ server
 │   │   └── 📄 index.ts
+│   ├── 🗂️ types
+│   │   └── 📄 xss-clean.d.ts
 │   ├── 🗂️ utils
+│   │   ├── 📄 bcrypt.utils.ts
 │   │   ├── 📄 email.utils.ts
 │   │   ├── 📄 global.utils.ts
 │   │   ├── 📄 index.ts
+│   │   ├── 📄 jwt.utils.ts
 │   │   ├── 📄 otp.utils.ts
-│   │   ├── 📄 token.utils.ts
 │   │   └── 📄 username.utils.ts
 │   ├── 🗂️ views
 │   │   ├── 🗂️ otp-email
@@ -158,6 +161,7 @@
 │   │   └── 🗂️ verification-notification
 │   │       └── 📄 index.html
 │   └── 📄 index.ts
+├── 📄 eslint.config.js
 ├── 📄 eslint.config.ts
 ├── 📄 MERN Backend Starter.postman_collection.json
 ├── 📄 nodemon.json
@@ -904,10 +908,10 @@ is protected under the [LICENSE](https://choosealicense.com/licenses) License. F
 
 ## Todo
 
-- [ ] 🎗️ **Add Typescript support:** Set up GitHub Actions for testing, linting, and formatting
-- [ ] 🎗️ **Write Tests:** Add unit and integration tests for all modules (`auth`, `email`, `otp`, etc.)
-- [ ] 🎗️ **Dockerization:** Add `Dockerfile` and `docker-compose.yml` for container support
-- [ ] 🎗️ **CI Integration:** Set up GitHub Actions for testing, linting, and formatting
+- [x] **Add Typescript support:** Set up GitHub Actions for testing, linting, and formatting
+- [ ] 🚧 **Write Tests:** Add unit and integration tests for all modules (`auth`, `email`, `otp`, etc.)
+- [ ] **Dockerization:** Add `Dockerfile` and `docker-compose.yml` for container support
+- [ ] **CI Integration:** Set up GitHub Actions for testing, linting, and formatting
 
 <div align="right">
 

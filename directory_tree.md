@@ -1,6 +1,6 @@
 # Directory Tree: mern-backend-starter
 
-Generated on: 2025-07-28 23:47:44
+Generated on: 2025-07-29 14:41:11
 
 ```
 🗂️ mern-backend-starter
@@ -79,12 +79,15 @@ Generated on: 2025-07-28 23:47:44
 │   │   └── 📄 index.ts
 │   ├── 🗂️ server
 │   │   └── 📄 index.ts
+│   ├── 🗂️ types
+│   │   └── 📄 xss-clean.d.ts
 │   ├── 🗂️ utils
+│   │   ├── 📄 bcrypt.utils.ts
 │   │   ├── 📄 email.utils.ts
 │   │   ├── 📄 global.utils.ts
 │   │   ├── 📄 index.ts
+│   │   ├── 📄 jwt.utils.ts
 │   │   ├── 📄 otp.utils.ts
-│   │   ├── 📄 token.utils.ts
 │   │   └── 📄 username.utils.ts
 │   ├── 🗂️ views
 │   │   ├── 🗂️ otp-email
@@ -96,6 +99,7 @@ Generated on: 2025-07-28 23:47:44
 │   │   └── 🗂️ verification-notification
 │   │       └── 📄 index.html
 │   └── 📄 index.ts
+├── 📄 eslint.config.js
 ├── 📄 eslint.config.ts
 ├── 📄 MERN Backend Starter.postman_collection.json
 ├── 📄 nodemon.json
