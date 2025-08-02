@@ -924,12 +924,11 @@ npm test
 
 ---
 
-## 🌟 Roadmap
+## 📝 To Do
 
-- [x] **`Task 1`**: <strike>Add Typescript support</strike>
-- [ ] **`Task 2`**: Write Tests
-- [ ] **`Task 3`**: Dockerization
-- [ ] **`Task 4`**: CI Integration
+- [ ] **`Testing Suite`**: Write tests for the project
+- [ ] **`Dockerization/Containerization`**: Dockerize the project
+- [ ] **`CI Integration`**: Integrate CI/CD pipeline
 
 ---
 
