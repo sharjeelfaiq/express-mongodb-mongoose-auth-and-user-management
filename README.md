@@ -211,35 +211,27 @@ This **MERN Backend Starter Kit** is a fully-typed, modular Express.js server sc
 			</thead>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/eslint.config.js'>eslint.config.js</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/eslint.config.ts'>eslint.config.ts</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/generateTree.ps1'>generateTree.ps1</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/MERN Backend Starter.postman_collection.json'>MERN Backend Starter.postman_collection.json</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/nodemon.json'>nodemon.json</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/package-lock.json'>package-lock.json</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/package.json'>package.json</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 				<tr style='border-bottom: 1px solid #eee;'>
 					<td style='padding: 8px;'><b><a href='/tsconfig.json'>tsconfig.json</a></b></td>
-					<td style='padding: 8px;'>Code>❯ REPLACE-ME</code></td>
 				</tr>
 			</table>
 		</blockquote>
